@@ -15,6 +15,7 @@ import firebase_admin
 import logging
 import django_heroku
 from firebase_admin import credentials
+from corsheaders.defaults import default_headers
 
 
 
@@ -158,6 +159,9 @@ STATIC_ROOT = os.path.join(os.path.join(BASE_DIR), "static")
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'firebase-user',
+]
 
 EMAIL_USE_TLS = True
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -14,6 +14,9 @@ import os
 import firebase_admin
 import logging
 import django_heroku
+from firebase_admin import credentials
+
+
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -163,7 +166,8 @@ EMAIL_HOST_USER = 'luisparada364@gmail.com'  # my gmail username
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
-FIREBASE_APP = firebase_admin.initialize_app()
+cred = credentials.Certificate(os.environ['GOOGLE_APPLICATION_CREDENTIALS='])
+FIREBASE_APP = firebase_admin.initialize_app(cred)
 GRAPHENE = {
     'MIDDLEWARE': ['deck_pocket.custom_auth.auth_middleware.AuthorizationMiddleware']
 }

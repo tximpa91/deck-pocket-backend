@@ -1,1 +1,1 @@
-web: gunicorn deck_pocket_backend.deck_pocket_backend.wsgi
+web: gunicorn deck_pocket_backend.wsgi

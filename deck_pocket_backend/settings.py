@@ -166,7 +166,7 @@ EMAIL_HOST_USER = 'luisparada364@gmail.com'  # my gmail username
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
-cred = credentials.Certificate(os.environ['GOOGLE_APPLICATION_CREDENTIALS='])
+cred = credentials.Certificate(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 FIREBASE_APP = firebase_admin.initialize_app(cred)
 GRAPHENE = {
     'MIDDLEWARE': ['deck_pocket.custom_auth.auth_middleware.AuthorizationMiddleware']

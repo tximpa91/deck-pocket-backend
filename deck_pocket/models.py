@@ -65,7 +65,6 @@ class Card(DefaultDate):
     type_line = models.CharField(max_length=255, blank=True, null=True)
     color_identity = JSONField(blank=True, null=True)
     reserved = models.BooleanField(default=False, blank=True, null=True)
-    foil: models.BooleanField(default=False, blank=True, null=True)
     nonfoil = models.BooleanField(default=False, blank=True, null=True)
     promo = models.BooleanField(default=False, blank=True, null=True)
     reprint = models.BooleanField(default=False, blank=True, null=True)

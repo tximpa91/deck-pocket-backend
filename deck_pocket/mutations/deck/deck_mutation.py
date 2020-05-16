@@ -26,13 +26,13 @@ class CreateOrUpdateDeck(Mutation):
             deck = Deck.get_deck(deck_id)
             deck.name = name
             deck.deck_type = deck_type
-            deck.cards.clear()
             deck.save()
         else:
             deck = Deck(name=name, deck_type=deck_type, user_deck=user)
             deck.save()
         # Associate cards to a deck
         if cards:
+            deck.cards.clear()
             cards_for_create_or_update = Card.get_cards(cards)
             for card in cards_for_create_or_update:
                 deck.cards.add(card)

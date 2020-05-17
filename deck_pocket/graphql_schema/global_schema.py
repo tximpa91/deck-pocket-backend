@@ -21,7 +21,7 @@ class Query(graphene.ObjectType):
         distinct = kwargs.get('distinct')
         queryset = Card.objects.filter(name__icontains=card_name)
         if distinct:
-            return queryset.distinct('name')
+            queryset = queryset.distinct('name')
         return first(queryset, kwargs)
 
     def resolve_decks(self, info, **kwargs):

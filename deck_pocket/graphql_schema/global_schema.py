@@ -8,11 +8,11 @@ from deck_pocket.graphql_fields.custom_fields import first
 
 
 class Query(graphene.ObjectType):
-    all_cards = graphene.List(CardSchema, deck_name=graphene.String(), first=graphene.Int)
-    card = graphene.List(CardSchema, card_name=graphene.String(), distinct=graphene.Boolean(), first=graphene.Int)
-    decks = graphene.List(DeckSchema, deck_name=graphene.String(), first=graphene.Int)
-    whishlist = graphene.List(WhishlistSchema, first=graphene.Int)
-    my_cards = graphene.List(MyCardSchema, first=graphene.Int)
+    all_cards = graphene.List(CardSchema, deck_name=graphene.String(), first=graphene.Int())
+    card = graphene.List(CardSchema, card_name=graphene.String(), distinct=graphene.Boolean(), first=graphene.Int())
+    decks = graphene.List(DeckSchema, deck_name=graphene.String(), first=graphene.Int())
+    whishlist = graphene.List(WhishlistSchema, first=graphene.Int())
+    my_cards = graphene.List(MyCardSchema, first=graphene.Int())
 
     def resolve_all_cards(self, info):
         return Card.objects.all()
@@ -22,7 +22,7 @@ class Query(graphene.ObjectType):
         queryset = Card.objects.filter(name__icontains=card_name)
         if distinct:
             return queryset.distinct('name')
-        return first(queryset)
+        return first(queryset, kwargs)
 
     def resolve_decks(self, info, **kwargs):
         user = kwargs.pop('user')

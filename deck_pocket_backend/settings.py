@@ -17,9 +17,6 @@ import django_heroku
 from firebase_admin import credentials
 from corsheaders.defaults import default_headers
 
-
-
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -86,7 +83,7 @@ WSGI_APPLICATION = 'deck_pocket_backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-DATABASES = {}
+
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -210,4 +207,17 @@ LOGGING = {
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-django_heroku.settings(locals())
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'DeckPocket',
+            'USER': 'postgres',
+            'PASSWORD': 'docker',
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+
+    }
+else:
+    django_heroku.settings(locals())

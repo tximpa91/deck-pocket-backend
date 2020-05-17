@@ -12,3 +12,7 @@ def first(queryset, limit):
         return queryset[:limit_query]
     else:
         return queryset
+
+
+def wrap_querys(model, query_params):
+    return graphene.List(model, first=graphene.Int(), **query_params)

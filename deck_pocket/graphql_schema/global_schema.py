@@ -4,16 +4,12 @@ from .deck.deck_schema import DeckSchema
 from .whishlist.whishlist_schema import WhishlistSchema
 from .mycards.mycards_schema import MyCardSchema
 from deck_pocket.models import Card, Deck, Whishlist, MyCards
-from deck_pocket.graphql_fields.custom_fields import first
-
+from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
 
 
 class Query(graphene.ObjectType):
-    all_cards = graphene.List(CardSchema, deck_name=graphene.String(), first=graphene.Int())
-    card = graphene.List(CardSchema, card_name=graphene.String(), distinct=graphene.Boolean(), first=graphene.Int())
-    decks = graphene.List(DeckSchema, deck_name=graphene.String(), first=graphene.Int())
-    whishlist = graphene.Field(WhishlistSchema, first=graphene.Int())
-    my_cards = graphene.Field(MyCardSchema, first=graphene.Int())
+    card = wrap_querys(CardSchema, {'card_name': graphene.String(), 'distinct': graphene.Boolean()})
+    decks = wrap_querys(DeckSchema, {'deck_name': graphene.String()})
 
     def resolve_all_cards(self, info):
         return Card.objects.all()

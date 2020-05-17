@@ -7,6 +7,7 @@ from deck_pocket.models import Card, Deck, Whishlist, MyCards
 from deck_pocket.graphql_fields.custom_fields import first
 
 
+
 class Query(graphene.ObjectType):
     all_cards = graphene.List(CardSchema, deck_name=graphene.String(), first=graphene.Int())
     card = graphene.List(CardSchema, card_name=graphene.String(), distinct=graphene.Boolean(), first=graphene.Int())

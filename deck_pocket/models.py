@@ -87,9 +87,10 @@ class Card(DefaultDate):
     @staticmethod
     def get_cards(cards):
         try:
-            result = Card.objects.none()
+            result = []
             for card in cards:
-                result = result.union(Card.objects.filter(card_id=str(card)))
+                result.append({
+                    'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
             return result
 
         except Card.DoesNotExist:
@@ -105,19 +106,6 @@ class Deck(DefaultDate):
     user_deck = models.ForeignKey('DeckPocketUser', models.CASCADE,
                                   related_name='deck_user', blank=True, null=True, db_column='user_deck')
     deck_type = models.CharField(max_length=255, blank=True, null=True)
-    cards = models.ManyToManyField('Card', db_column='cards', related_name='deck_cards', db_table='DeckCard')
-
-    @staticmethod
-    def get_ownership(cards):
-        whishlist = []
-        my_cards = []
-
-        for card in cards:
-            if card.get('have_it'):
-                my_cards.append(card.get('card_id'))
-            else:
-                whishlist.append(card.get('card_id'))
-        return whishlist, my_cards
 
 
     @staticmethod
@@ -152,3 +140,20 @@ class MyCards(DefaultDate):
 
     class Meta:
         db_table = 'MyCards'
+
+
+class CardForDeck(DefaultDate):
+    card_for_deck_id  = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    card = models.ForeignKey('Card', models.CASCADE,
+                                  related_name='card_for_deck', blank=True, null=True, db_column='card_id')
+    deck = models.ForeignKey('Deck', models.CASCADE,
+                                  related_name='deck_for_card', blank=True, null=True, db_column='deck_id')
+    quantity = models.IntegerField(default=1)
+    have_it = models.BooleanField(default=False)
+
+    @staticmethod
+    def remove_cards(deck):
+        CardForDeck.objects.filter(deck=deck).delete()
+
+    class Meta:
+        db_table = "CardForDeck"

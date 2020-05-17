@@ -11,8 +11,8 @@ class Query(graphene.ObjectType):
     all_cards = graphene.List(CardSchema, deck_name=graphene.String(), first=graphene.Int())
     card = graphene.List(CardSchema, card_name=graphene.String(), distinct=graphene.Boolean(), first=graphene.Int())
     decks = graphene.List(DeckSchema, deck_name=graphene.String(), first=graphene.Int())
-    whishlist = graphene.List(WhishlistSchema, first=graphene.Int())
-    my_cards = graphene.List(MyCardSchema, first=graphene.Int())
+    whishlist = graphene.Field(WhishlistSchema, first=graphene.Int())
+    my_cards = graphene.Field(MyCardSchema, first=graphene.Int())
 
     def resolve_all_cards(self, info):
         return Card.objects.all()
@@ -34,8 +34,8 @@ class Query(graphene.ObjectType):
 
     def resolve_whishlist(self, info, **kwargs):
         user = kwargs.pop('user')
-        return first(Whishlist.objects.filter(user_whishlist=user), kwargs)
+        return Whishlist.objects.filter(user_whishlist=user)[0]
 
     def resolve_my_cards(self, info, **kwargs):
         user = kwargs.pop('user')
-        return first(MyCards.objects.filter(user_cards=user), kwargs)
+        return MyCards.objects.filter(user_cards=user)[0]

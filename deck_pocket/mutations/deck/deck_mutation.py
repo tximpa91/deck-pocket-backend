@@ -55,11 +55,8 @@ class DeleteDeck(Mutation):
     @transaction.atomic
     def mutate(self, info, deck_ids, **kwargs):
         try:
-            for deck_id in deck_ids:
-                deck = Deck.objects.get(deck_id=deck_id)
-                deck.deck_for_card.all().delete()
-                deck.grouped_cards.all().delete()
-                deck.delete()
+            queryset_delete = Deck.objects.filter(deck_id__in=deck_ids)
+            queryset_delete.delete()
             return DeleteDeck(message=f"Successful deleted Decks: {str(deck_ids)}")
         except Deck.DoesNotExist as error:
             print(traceback.format_exc())

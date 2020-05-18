@@ -28,7 +28,7 @@ class Query(graphene.ObjectType):
             queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user), kwargs)
         else:
             queryset = first(Deck.objects.filter(user_deck=user), kwargs)
-        queryset = queryset.order_by('updated')
+        queryset = queryset.order_by('-updated')
         return queryset
 
     def resolve_whishlist(self, info, **kwargs):

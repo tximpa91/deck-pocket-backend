@@ -25,9 +25,11 @@ class Query(graphene.ObjectType):
         user = kwargs.pop('user')
         deck_name = kwargs.get('deck_name')
         if deck_name:
-            return first(Deck.objects.filter(name__icontains=deck_name, user_deck=user), kwargs)
+            queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user), kwargs)
         else:
-            return first(Deck.objects.filter(user_deck=user), kwargs)
+            queryset = first(Deck.objects.filter(user_deck=user), kwargs)
+        queryset = queryset.order_by('updated')
+        return queryset
 
     def resolve_whishlist(self, info, **kwargs):
         user = kwargs.pop('user')

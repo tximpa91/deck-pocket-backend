@@ -3,6 +3,7 @@ from deck_pocket.graphql_schema.deck.deck_schema import DeckSchema
 from deck_pocket.models import Card, Deck, CardForDeck
 from django.db import transaction
 from deck_pocket.graphql_fields.custom_fields import DeckDictionary
+from django.utils import timezone
 import traceback
 
 
@@ -30,7 +31,7 @@ class CreateOrUpdateDeck(Mutation):
                 deck.deck_type = deck_type
                 deck.save()
             else:
-                deck = Deck(name=name, deck_type=deck_type, user_deck=user)
+                deck = Deck(name=name, deck_type=deck_type, user_deck=user, updated=timezone.now())
                 deck.save()
             # Associate cards to a deck
             if cards:
@@ -42,3 +43,22 @@ class CreateOrUpdateDeck(Mutation):
             return CreateOrUpdateDeck(deck=deck)
         except Exception as error:
             print(traceback.format_exc())
+
+
+class DeleteDeck(Mutation):
+    class Input:
+        deck_id = String(required=True)
+
+    message = Field(String)
+
+    @transaction.atomic
+    def mutate(self, info, deck_id, **kwargs):
+        try:
+            deck = Deck.objects.get(deck_id=deck_id)
+            deck.deck_for_card.all().delete()
+            deck.grouped_cards.all().delete()
+            deck.delete()
+            return DeleteDeck(message=f"Successful deleted Deck: {deck_id}")
+        except Deck.DoesNotExist as error:
+            print(traceback.format_exc())
+

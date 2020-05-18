@@ -107,7 +107,6 @@ class Deck(DefaultDate):
                                   related_name='deck_user', blank=True, null=True, db_column='user_deck')
     deck_type = models.CharField(max_length=255, blank=True, null=True)
 
-
     @staticmethod
     def get_deck(deck_id):
         try:
@@ -123,7 +122,7 @@ class Whishlist(DefaultDate):
     whishlist_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='Whishlist')
     user_whishlist = models.ForeignKey('DeckPocketUser', models.CASCADE,
-                                  related_name='user_whishlist', blank=True, null=True, db_column='user_whishlist')
+                                       related_name='user_whishlist', blank=True, null=True, db_column='user_whishlist')
     cards = models.ManyToManyField('Card', db_column='cards', related_name='whish_cards', db_table='WhishlistCard')
 
     class Meta:
@@ -134,22 +133,23 @@ class MyCards(DefaultDate):
     my_cards_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='MyCards')
     user_cards = models.ForeignKey('DeckPocketUser', models.CASCADE,
-                                       related_name='user_cards', blank=True, null=True, db_column='user_cards')
+                                   related_name='user_cards', blank=True, null=True, db_column='user_cards')
     cards = models.ManyToManyField('Card', db_column='cards', related_name='my_cards', db_table='MyCard')
-
 
     class Meta:
         db_table = 'MyCards'
 
 
 class CardForDeck(DefaultDate):
-    card_for_deck_id  = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    card_for_deck_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     card = models.ForeignKey('Card', models.CASCADE,
-                                  related_name='card_for_deck', blank=True, null=True, db_column='card_id')
+                             related_name='card_for_deck', blank=True, null=True, db_column='card_id')
     deck = models.ForeignKey('Deck', models.CASCADE,
-                                  related_name='deck_for_card', blank=True, null=True, db_column='deck_id')
+                             related_name='deck_for_card', blank=True, null=True, db_column='deck_id')
     quantity = models.IntegerField(default=1)
     have_it = models.BooleanField(default=False)
+    group = models.ForeignKey('GroupCards', models.CASCADE,
+                             related_name='group_for_card', blank=True, null=True, db_column='group_id')
 
     @staticmethod
     def remove_cards(deck):
@@ -157,3 +157,13 @@ class CardForDeck(DefaultDate):
 
     class Meta:
         db_table = "CardForDeck"
+
+
+class GroupCards(DefaultDate):
+    group_card_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='MyCards')
+    deck = models.ForeignKey('Deck', models.CASCADE,
+                             related_name='grouped_cards', blank=True, null=True, db_column='deck_id')
+
+    class Meta:
+        db_table = "GroupCards"

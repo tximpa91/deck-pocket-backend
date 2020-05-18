@@ -29,6 +29,7 @@ class CreateOrUpdateDeck(Mutation):
                 deck = Deck.get_deck(deck_id)
                 deck.name = name
                 deck.deck_type = deck_type
+                deck.updated = timezone.now()
                 deck.save()
             else:
                 deck = Deck(name=name, deck_type=deck_type, user_deck=user, updated=timezone.now())

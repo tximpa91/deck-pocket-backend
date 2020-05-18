@@ -48,18 +48,16 @@ class CreateOrUpdateDeck(Mutation):
 
 class DeleteDeck(Mutation):
     class Input:
-        deck_id = String(required=True)
+        deck_ids = List(String, required=True)
 
     message = Field(String)
 
     @transaction.atomic
-    def mutate(self, info, deck_id, **kwargs):
+    def mutate(self, info, deck_ids, **kwargs):
         try:
-            deck = Deck.objects.get(deck_id=deck_id)
-            deck.deck_for_card.all().delete()
-            deck.grouped_cards.all().delete()
-            deck.delete()
-            return DeleteDeck(message=f"Successful deleted Deck: {deck_id}")
+            queryset_delete = Deck.objects.filter(deck_id__in=deck_ids)
+            queryset_delete.delete()
+            return DeleteDeck(message=f"Successful deleted Decks: {str(deck_ids)}")
         except Deck.DoesNotExist as error:
             print(traceback.format_exc())
 

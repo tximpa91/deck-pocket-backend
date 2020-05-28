@@ -40,6 +40,9 @@ class CreateOrUpdateDeck(Mutation):
                 cards_for_create_or_update = Card.get_cards(cards)
                 for card in cards_for_create_or_update:
                     CardForDeck(card=card.get('card'), deck=deck, have_it=card.get('have_it')).save()
+            else:
+                if deck_id:
+                    CardForDeck.remove_cards(deck=deck)
 
             return CreateOrUpdateDeck(deck=deck)
         except Exception as error:

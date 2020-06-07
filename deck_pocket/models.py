@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import JSONField
 from graphql import GraphQLError
 from django.utils import timezone
 import uuid
-
+from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 
 # Create your models here.
 
@@ -84,11 +84,25 @@ class Card(DefaultDate):
     textless = models.BooleanField(default=False, blank=True, null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0)
 
+    def update_price(self, price):
+        update = False
+        time_now = timezone.now().strftime('%Y-%m-%d')
+        if self.updated is None:
+            update = True
+        elif self.updated.strftime('%Y-%m-%d') != time_now:
+            update = True
+        if update:
+            self.price = price
+            self.updated = timezone.now()
+            self.save()
+
     @staticmethod
     def get_cards(cards):
         try:
             result = []
             for card in cards:
+                card_object = Card.objects.get(card_id=str(card.get('card_id')))
+                card_object.update_price(CardMarketAPI(card_object.name).get_price())
                 result.append({
                     'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
             return result

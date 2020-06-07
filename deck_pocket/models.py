@@ -84,7 +84,7 @@ class Card(DefaultDate):
     textless = models.BooleanField(default=False, blank=True, null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0)
 
-    def update_price(self, price):
+    def update_price(self):
         update = False
         time_now = timezone.now().strftime('%Y-%m-%d')
         if self.updated is None:
@@ -92,7 +92,7 @@ class Card(DefaultDate):
         elif self.updated.strftime('%Y-%m-%d') != time_now:
             update = True
         if update:
-            self.price = price
+            self.price = CardMarketAPI(self.name).get_price()
             self.updated = timezone.now()
             self.save()
 
@@ -102,7 +102,6 @@ class Card(DefaultDate):
             result = []
             for card in cards:
                 card_object = Card.objects.get(card_id=str(card.get('card_id')))
-                card_object.update_price(CardMarketAPI(card_object.name).get_price())
                 result.append({
                     'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
             return result

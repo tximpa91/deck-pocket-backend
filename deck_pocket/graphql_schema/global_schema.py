@@ -5,11 +5,14 @@ from .whishlist.whishlist_schema import WhishlistSchema
 from .mycards.mycards_schema import MyCardSchema
 from deck_pocket.models import Card, Deck, Whishlist, MyCards
 from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
+from graphql import GraphQLError
+
 
 
 class Query(graphene.ObjectType):
     card = wrap_querys(CardSchema, {'card_name': graphene.String(), 'distinct': graphene.Boolean()})
     decks = wrap_querys(DeckSchema, {'deck_name': graphene.String()})
+    deck = graphene.Field(DeckSchema, {'deck_id': graphene.String()})
 
     def resolve_all_cards(self, info):
         return Card.objects.all()
@@ -31,6 +34,14 @@ class Query(graphene.ObjectType):
             queryset = first(Deck.objects.filter(user_deck=user), kwargs)
         queryset = queryset.order_by('-updated')
         return queryset
+
+    def resolve_deck(self, info, deck_id, **kwargs):
+        try:
+            user = kwargs.pop('user')
+            return Deck.objects.get(deck_id=deck_id, user_deck=user)
+        except Deck.DoesNotExist as error:
+            raise GraphQLError(str(error))
+
 
     def resolve_whishlist(self, info, **kwargs):
         user = kwargs.pop('user')

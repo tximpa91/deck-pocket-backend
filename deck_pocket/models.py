@@ -102,6 +102,7 @@ class Card(DefaultDate):
             result = []
             for card in cards:
                 card_object = Card.objects.get(card_id=str(card.get('card_id')))
+                card_object.update_price()
                 result.append({
                     'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
             return result

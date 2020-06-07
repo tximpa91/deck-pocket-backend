@@ -4,6 +4,7 @@ from deck_pocket.models import Card, Deck, CardForDeck
 from django.db import transaction
 from deck_pocket.graphql_fields.custom_fields import DeckDictionary
 from django.utils import timezone
+from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 import traceback
 
 

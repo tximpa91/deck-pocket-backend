@@ -21,11 +21,11 @@ class CardMarketAPI(object):
         final_response = sorted(partial_response, key=itemgetter('ratio'), reverse=True)
         return final_response[0] if final_response else None
 
-    def get_price(self) -> object:
+    def get_info(self) -> dict:
         try:
             response_for_card = self.mkm.market_place.find_product(params={"search": self.name})
             card_mkm = self.clean_response(response_for_card.json()['product'])
             response_price = self.mkm.market_place.product(product=card_mkm.get('idProduct'))
-            return response_price.json()['product']['priceGuide']['TREND']
+            return response_price.json()['product']
         except:
-            return 0
+            return dict

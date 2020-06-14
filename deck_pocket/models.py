@@ -5,6 +5,7 @@ from graphql import GraphQLError
 from django.utils import timezone
 import uuid
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
+from django.conf import settings
 
 # Create your models here.
 
@@ -83,18 +84,22 @@ class Card(DefaultDate):
     full_art = models.BooleanField(default=False, blank=True, null=True)
     textless = models.BooleanField(default=False, blank=True, null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0)
+    mkm_url = models.URLField(max_length=2500, blank=True, null=True)
 
-    def update_price(self):
-        update = False
+    def update_card(self):
+        update = True
         time_now = timezone.now().strftime('%Y-%m-%d')
         if self.updated is None:
             update = True
         elif self.updated.strftime('%Y-%m-%d') != time_now:
             update = True
         if update:
-            self.price = CardMarketAPI(self.name).get_price()
-            self.updated = timezone.now()
-            self.save()
+            mkm_info = CardMarketAPI(self.name).get_info()
+            if mkm_info:
+                self.price = mkm_info['priceGuide']['TREND']
+                self.mkm_url = settings.CARD_MARKET_URL + mkm_info['website']
+                self.updated = timezone.now()
+                self.save()
 
     @staticmethod
     def get_cards(cards):
@@ -102,7 +107,7 @@ class Card(DefaultDate):
             result = []
             for card in cards:
                 card_object = Card.objects.get(card_id=str(card.get('card_id')))
-                card_object.update_price()
+                card_object.update_card()
                 result.append({
                     'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
             return result

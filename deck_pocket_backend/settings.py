@@ -173,6 +173,7 @@ GRAPHENE = {
     'MIDDLEWARE': ['deck_pocket.custom_auth.auth_middleware.AuthorizationMiddleware']
 }
 
+CARD_MARKET_URL = 'https://www.cardmarket.com'
 
 class GraphQLLogFilter(logging.Filter):
     def filter(self, record):

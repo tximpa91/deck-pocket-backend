@@ -109,7 +109,10 @@ class Card(DefaultDate):
                 card_object = Card.objects.get(card_id=str(card.get('card_id')))
                 card_object.update_card()
                 result.append({
-                    'card': Card.objects.get(card_id=str(card.get('card_id'))), 'have_it': card.get('have_it')})
+                    'card': Card.objects.get(card_id=str(card.get('card_id'))),
+                    'have_it': card.get('have_it'),
+                    'quantity': card.get('quantity', 1)
+                })
             return result
 
         except Card.DoesNotExist:

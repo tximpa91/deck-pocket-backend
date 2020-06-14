@@ -40,7 +40,10 @@ class CreateOrUpdateDeck(Mutation):
                 CardForDeck.remove_cards(deck=deck)
                 cards_for_create_or_update = Card.get_cards(cards)
                 for card in cards_for_create_or_update:
-                    CardForDeck(card=card.get('card'), deck=deck, have_it=card.get('have_it')).save()
+                    CardForDeck(card=card.get('card'), deck=deck,
+                                have_it=card.get('have_it'),
+                                quantity=card.get('quantity')
+                                ).save()
             else:
                 if deck_id:
                     CardForDeck.remove_cards(deck=deck)

@@ -4,6 +4,7 @@ import graphene
 class DeckDictionary(graphene.InputObjectType):
     card_id = graphene.String()
     have_it = graphene.Boolean()
+    quantity = graphene.Int()
 
 
 def first(queryset, limit):

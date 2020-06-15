@@ -87,7 +87,7 @@ class Card(DefaultDate):
     mkm_url = models.URLField(max_length=2500, blank=True, null=True)
 
     def update_card(self):
-        update = True
+        update = False
         time_now = timezone.now().strftime('%Y-%m-%d')
         if self.updated is None:
             update = True

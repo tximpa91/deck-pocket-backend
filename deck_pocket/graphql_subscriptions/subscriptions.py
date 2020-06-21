@@ -6,26 +6,31 @@ from deck_pocket.models import Deck
 from rx import Observable
 
 
-class Subscription(graphene.ObjectType):
+class DeckCreatedSubscription(graphene.ObjectType):
     deck_created = graphene.Field(DeckSchema)
-    deck_updated = graphene.Field(DeckSchema)
-    hello = graphene.String()
 
     def resolve_deck_created(root, info, **kwargs):
-        print(root)
         return root.filter(
             lambda event:
             event.operation == CREATED and
             isinstance(event.instance, Deck)
         ).map(lambda event: event.instance)
 
-    def resolve_deck_updated(root, info, id, **kwargs):
+
+class DeckUpdatedSubscription(graphene.ObjectType):
+    deck_updated = graphene.Field(DeckSchema, {'deck_id': graphene.String()})
+
+    def resolve_deck_updated(root, info, deck_id, **kwargs):
         return root.filter(
             lambda event:
-                event.operation == UPDATED and
-                isinstance(event.instance, Deck) and
-                event.instance.pk == int(id)
+            event.operation == UPDATED and
+            isinstance(event.instance, Deck) and
+            str(event.instance.deck_id) == deck_id
         ).map(lambda event: event.instance)
+
+
+class Subscription(DeckUpdatedSubscription):
+    hello = graphene.String()
 
     def resolve_hello(root, info, **kwargs):
         try:

@@ -31,10 +31,8 @@ class CreateOrUpdateDeck(Mutation):
                 deck.name = name
                 deck.deck_type = deck_type
                 deck.updated = timezone.now()
-                deck.save()
             else:
                 deck = Deck(name=name, deck_type=deck_type, user_deck=user, updated=timezone.now())
-                deck.save()
             # Associate cards to a deck
             if cards:
                 CardForDeck.remove_cards(deck=deck)
@@ -44,10 +42,11 @@ class CreateOrUpdateDeck(Mutation):
                                 have_it=card.get('have_it'),
                                 quantity=card.get('quantity')
                                 ).save()
+
             else:
                 if deck_id:
                     CardForDeck.remove_cards(deck=deck)
-
+            deck.save()
             return CreateOrUpdateDeck(deck=deck)
         except Exception as error:
             raise GraphQLError(str(error))

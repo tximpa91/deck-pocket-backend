@@ -17,15 +17,19 @@ import graphene
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
+from graphql_playground.views import GraphQLPlaygroundView
+from django.views.decorators.csrf import csrf_exempt
 from deck_pocket.graphql_schema.global_schema import Query
-from deck_pocket.mutations.global_mutations import Mutation
-from deck_pocket.custom_auth.auth_middleware import AuthorizationMiddleware
-from deck_pocket.auth_ql.oauth_graphql import PrivateGraphQLView
+from deck_pocket.graphql_mutations.global_mutations import Mutation
+from deck_pocket.auth_ql.oauth_graphql import PrivateGraphQLView, GraphQLCustomCoreBackend
+from deck_pocket.graphql_subscriptions.subscriptions import Subscription
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
-    path('graphql', PrivateGraphQLView.as_view(graphiql=True, schema=schema)),
+    path('graphql', csrf_exempt(PrivateGraphQLView.as_view(graphiql=True, schema=schema, backend=GraphQLCustomCoreBackend())),
+         name='graphql'),
+    path('playground/', GraphQLPlaygroundView.as_view(endpoint="http://127.0.0.1:8000/graphql")),
 ]

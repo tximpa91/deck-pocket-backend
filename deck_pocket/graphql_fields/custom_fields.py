@@ -1,5 +1,6 @@
 import graphene
-
+from graphene_django.types import DjangoObjectType
+from deck_pocket.models import Deck
 
 class DeckDictionary(graphene.InputObjectType):
     card_id = graphene.String()
@@ -17,3 +18,9 @@ def first(queryset, limit):
 
 def wrap_querys(model, query_params):
     return graphene.List(model, first=graphene.Int(), **query_params)
+
+
+class DeckQl(DjangoObjectType):
+    class Meta:
+        model = Deck
+

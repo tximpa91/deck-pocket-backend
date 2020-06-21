@@ -34,18 +34,21 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
+    'deck_pocket',
+    'graphene_django',
+    'graphene_subscriptions',
+    'corsheaders',
+    'rest_framework.authtoken',
+    'oauth2_provider',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
-    'rest_framework.authtoken',
-    'oauth2_provider',
     'sslserver',
-    'deck_pocket',
-    'graphene_django'
+    'graphql_playground'
 ]
 
 MIDDLEWARE = [
@@ -170,10 +173,12 @@ SERVER_EMAIL = EMAIL_HOST_USER
 cred = credentials.Certificate(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
 FIREBASE_APP = firebase_admin.initialize_app(cred)
 GRAPHENE = {
-    'MIDDLEWARE': ['deck_pocket.custom_auth.auth_middleware.AuthorizationMiddleware']
+    'MIDDLEWARE': ['deck_pocket.custom_auth.auth_middleware.AuthorizationMiddleware',
+                   'deck_pocket.graphql_config.graphql_middleware.Depromise']
 }
 
 CARD_MARKET_URL = 'https://www.cardmarket.com'
+
 
 class GraphQLLogFilter(logging.Filter):
     def filter(self, record):
@@ -206,9 +211,17 @@ LOGGING = {
     },
 }
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
+ASGI_APPLICATION = "deck_pocket_backend.routing.application"
+
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
-if DEBUG:
+if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',

@@ -117,9 +117,9 @@ USE_I18N = True
 USE_L10N = False
 
 USE_TZ = True
-DATETIME_FORMAT = "d-m-Y H:i:s"
-DATE_FORMAT = "d-m-Y"
-TIME_FORMAT = "H:i:s"
+DATETIME_FORMAT = 'd-m-Y H:i:s'
+DATE_FORMAT = 'd-m-Y'
+TIME_FORMAT = 'H:i:s'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -155,7 +155,7 @@ OAUTH2_PROVIDER = {
 
 }
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(os.path.join(BASE_DIR), "static")
+STATIC_ROOT = os.path.join(os.path.join(BASE_DIR), 'static')
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_HEADERS = list(default_headers) + [
@@ -212,12 +212,15 @@ LOGGING = {
 }
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer' if DEBUG else 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {} if DEBUG else {
+            'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
     }
 }
 
-ASGI_APPLICATION = "deck_pocket_backend.routing.application"
+ASGI_APPLICATION = 'deck_pocket_backend.routing.application'
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'

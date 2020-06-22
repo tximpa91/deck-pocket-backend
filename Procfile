@@ -1,1 +1,1 @@
-web: uvicorn deck_pocket_backend.asgi:application --limit-max-requests=1200 --port $PORT
+web: daphne desck_pocket_backend.asgi:application --port $PORT --bind 0.0.0.0

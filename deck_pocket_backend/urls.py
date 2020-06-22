@@ -31,5 +31,5 @@ urlpatterns = [
     path('oauth2/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     path('graphql', csrf_exempt(PrivateGraphQLView.as_view(graphiql=True, schema=schema, backend=GraphQLCustomCoreBackend())),
          name='graphql'),
-    path('playground/', GraphQLPlaygroundView.as_view(endpoint="http://127.0.0.1:8000/graphql")),
+    path('playground/', GraphQLPlaygroundView.as_view(endpoint="https://deck-pocket-backend.herokuapp.com/graphql")),
 ]

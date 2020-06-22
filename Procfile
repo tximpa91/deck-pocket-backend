@@ -1,1 +1,1 @@
-web: daphne deck_pocket_backend.asgi:application --port 8000 --bind 127.0.0.1
+web: daphne deck_pocket_backend.asgi:application --port 8000 --bind 0.0.0.0

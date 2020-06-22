@@ -1,1 +1,1 @@
-web: uvicorn deck_pocket_backend.asgi:application --limit-max-requests=1200 --port $PORT
+web: gunicorn -w 4 -k uvicorn.workers.UvicornWorker deck_pocket_backend.asgi:application

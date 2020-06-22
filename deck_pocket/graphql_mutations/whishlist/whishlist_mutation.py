@@ -15,7 +15,7 @@ class CreateOrUpdateWhishList(Mutation):
     @transaction.atomic
     def mutate(self, info, cards, **kwargs):
         """Create or update a whishlist if deck_id is not null if for update"""
-        user = kwargs.pop('user')
+        user = info.context.data.get('user')
         whishlist = Whishlist.objects.get_or_create(user_whishlist=user)[0]
         # Associate cards to a Whishlist
         if cards:

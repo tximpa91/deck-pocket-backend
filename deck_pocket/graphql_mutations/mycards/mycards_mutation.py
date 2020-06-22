@@ -15,7 +15,7 @@ class CreateOrUpdateMyCard(Mutation):
     @transaction.atomic
     def mutate(self, info, cards, **kwargs):
         """Create or update a mycard if deck_id is not null if for update"""
-        user = kwargs.pop('user')
+        user = info.context.data.get('user')
         mycard = MyCards.objects.get_or_create(user_cards=user)[0]
         # Associate cards to a MyCards
         if cards:

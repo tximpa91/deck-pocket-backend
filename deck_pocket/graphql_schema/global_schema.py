@@ -26,7 +26,7 @@ class Query(graphene.ObjectType):
         return first(queryset, kwargs)
 
     def resolve_decks(self, info, **kwargs):
-        user = kwargs.pop('user')
+        user = info.context.data.get('user')
         deck_name = kwargs.get('deck_name')
         if deck_name:
             queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user), kwargs)
@@ -37,16 +37,16 @@ class Query(graphene.ObjectType):
 
     def resolve_deck(self, info, deck_id, **kwargs):
         try:
-            user = kwargs.pop('user')
+            user = info.context.data.get('user')
             return Deck.objects.get(deck_id=deck_id, user_deck=user)
         except Deck.DoesNotExist as error:
             raise GraphQLError(str(error))
 
 
     def resolve_whishlist(self, info, **kwargs):
-        user = kwargs.pop('user')
+        user = info.context.data.get('user')
         return Whishlist.objects.filter(user_whishlist=user)[0]
 
     def resolve_my_cards(self, info, **kwargs):
-        user = kwargs.pop('user')
+        user = info.context.data.get('user')
         return MyCards.objects.filter(user_cards=user)[0]

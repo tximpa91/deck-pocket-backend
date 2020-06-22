@@ -23,7 +23,7 @@ class CreateOrUpdateDeck(Mutation):
     def mutate(self, info, name, deck_type, **kwargs):
         """Create or update a deck if deck_id is not null if for update"""
         try:
-            user = kwargs.pop('user')
+            user = info.context.data.get('user')
             deck_id = kwargs.get('deck_id')
             cards = kwargs.get('cards')
             if deck_id is not None:

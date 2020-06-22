@@ -8,7 +8,7 @@ class DeckSchema(DjangoObjectType):
     cards = graphene.List(CardForDeckSchema)
 
     def resolve_cards(self, info, **kwargs):
-        user = kwargs.get('user')
+        user = info.context.data.get('user')
         return CardForDeck.objects.filter(deck=self)
 
     class Meta:

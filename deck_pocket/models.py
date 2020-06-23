@@ -37,10 +37,8 @@ class DeckPocketUser(DefaultDate):
     @staticmethod
     def user_exists(uid=None):
         try:
-            print(uid)
             return True, DeckPocketUser.objects.get(uid=str(uid))
         except Exception as error:
-            print(str(error))
             return False, None
 
     @staticmethod

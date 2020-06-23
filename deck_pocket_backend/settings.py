@@ -224,6 +224,7 @@ ASGI_APPLICATION = 'deck_pocket_backend.routing.application'
 
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+CONN_MAX_AGE = 0
 if DEBUG:
     DATABASES = {
         'default': {

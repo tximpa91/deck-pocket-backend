@@ -29,7 +29,7 @@ class DeckUpdatedSubscription(graphene.ObjectType):
         ).map(lambda event: event.instance)
 
 
-class Subscription(DeckUpdatedSubscription, DeckCreatedSubscription):
+class Subscription(DeckUpdatedSubscription):
     hello = graphene.String()
 
     def resolve_hello(root, info, **kwargs):

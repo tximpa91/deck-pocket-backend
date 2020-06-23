@@ -14,6 +14,7 @@ import os
 import firebase_admin
 import logging
 import django_heroku
+import dj_database_url
 from firebase_admin import credentials
 from corsheaders.defaults import default_headers
 
@@ -238,4 +239,4 @@ if DEBUG:
 
     }
 else:
-    django_heroku.settings(locals())
+    DATABASES = {'default': dj_database_url.config(default=os.environ.get['DATABASE_URL'])}

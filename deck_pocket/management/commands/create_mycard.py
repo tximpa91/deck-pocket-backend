@@ -12,9 +12,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         decks = Deck.objects.all()
         MyCards.objects.all().delete()
-        my_cards = MyCards()
-        my_cards.save()
         for deck in decks:
+            my_cards = MyCards()
+            my_cards.save()
             my_cards.user_cards = deck.user_deck
             my_cards.deck_id.add(deck)
             my_cards.save()

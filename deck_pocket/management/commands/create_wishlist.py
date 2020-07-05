@@ -13,8 +13,6 @@ class Command(BaseCommand):
         decks = Deck.objects.all()
         WishList.objects.all().delete()
         for deck in decks:
-            wish_list = WishList()
-            wish_list.save()
-            wish_list.user_wish_list = deck.user_deck
+            wish_list = WishList.get_or_create(deck.user_deck)
             wish_list.deck_id.add(deck)
             wish_list.save()

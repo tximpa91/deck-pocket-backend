@@ -13,8 +13,6 @@ class Command(BaseCommand):
         decks = Deck.objects.all()
         MyCards.objects.all().delete()
         for deck in decks:
-            my_cards = MyCards()
-            my_cards.save()
-            my_cards.user_cards = deck.user_deck
+            my_cards = MyCards.get_or_create(deck.user_deck)
             my_cards.deck_id.add(deck)
             my_cards.save()

@@ -160,6 +160,7 @@ class WishList(DefaultDate):
             return WishList.objects.get(user_wish_list=user)
         except WishList.DoesNotExist:
             wish_list = WishList()
+            wish_list.user_wish_list = user
             wish_list.save()
             return wish_list
 
@@ -180,6 +181,7 @@ class MyCards(DefaultDate):
             return MyCards.objects.get(user_cards=user)
         except MyCards.DoesNotExist:
             my_cards = MyCards()
+            my_cards.user_cards = user
             my_cards.save()
             return my_cards
 

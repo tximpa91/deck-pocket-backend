@@ -28,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '9uox7#=-+mn@(uh^ehzpa$*ylbb)g#7xs6dlee1y5+n%(d7azw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -230,10 +230,10 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'dea76ma2jmscun',
-            'USER': 'inrjtpbtqckzuu',
-            'PASSWORD': '35feca50806faabfd1a6b874e17c7176759a4b8dfa3965934bf66f333d287b1c',
-            'HOST': 'ec2-46-137-84-140.eu-west-1.compute.amazonaws.com',
+            'NAME': 'DeckPocket',
+            'USER': 'postgres',
+            'PASSWORD': 'docker',
+            'HOST': 'localhost',
             'PORT': '5432',
         }
 

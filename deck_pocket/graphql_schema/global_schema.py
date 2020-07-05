@@ -1,18 +1,20 @@
 import graphene
 from .card.card_schema import CardSchema
 from .deck.deck_schema import DeckSchema
-from .whishlist.whishlist_schema import WhishlistSchema
-from .mycards.mycards_schema import MyCardSchema
-from deck_pocket.models import Card, Deck, Whishlist, MyCards
+from itertools import chain
+from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
 from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
 from graphql import GraphQLError
-
 
 
 class Query(graphene.ObjectType):
     card = wrap_querys(CardSchema, {'card_name': graphene.String(), 'distinct': graphene.Boolean()})
     decks = wrap_querys(DeckSchema, {'deck_name': graphene.String()})
     deck = graphene.Field(DeckSchema, {'deck_id': graphene.String()})
+    wish_list = graphene.List(DeckSchema)
+    grouped_wish_list = graphene.List(CardSchema)
+    my_cards = graphene.List(DeckSchema)
+    grouped_my_cards = graphene.List(CardSchema)
 
     def resolve_all_cards(self, info):
         return Card.objects.all()
@@ -42,11 +44,45 @@ class Query(graphene.ObjectType):
         except Deck.DoesNotExist as error:
             raise GraphQLError(str(error))
 
-
-    def resolve_whishlist(self, info, **kwargs):
+    def resolve_wish_list(self, info, **kwargs):
+        result = []
         user = info.context.data.get('user')
-        return Whishlist.objects.filter(user_whishlist=user)[0]
+        wish_list = WishList.objects.get(user_wish_list=user)
+        for deck in wish_list.deck_id.all():
+            candidate = deck.deck_for_card.filter(have_it=False)
+            if candidate:
+                result.append(deck)
+        return result
+
+    def resolve_grouped_wish_list(self, info, **kwargs):
+        user = info.context.data.get('user')
+        whish_list = WishList.objects.get(user_wish_list=user)
+        cards_by_decks = []
+        for deck in whish_list.deck_id.all():
+            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=False)
+            for candidate in candidates_cards:
+                if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
+                    cards_by_decks.append(candidate.card)
+        return cards_by_decks
 
     def resolve_my_cards(self, info, **kwargs):
+        result = []
         user = info.context.data.get('user')
-        return MyCards.objects.filter(user_cards=user)[0]
+        my_cards = MyCards.objects.get(user_cards=user)
+        for deck in my_cards.deck_id.all():
+            candidate = deck.deck_for_card.filter(have_it=True)
+            if candidate:
+                result.append(deck)
+        return result
+
+    def resolve_grouped_my_cards(self, info, **kwargs):
+        user = info.context.data.get('user')
+        my_cards = MyCards.objects.get(user_cards=user)
+        cards_by_decks = []
+        for deck in my_cards.deck_id.all():
+            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=True)
+            for candidate in candidates_cards:
+                print(candidate.card.card_id)
+                if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
+                    cards_by_decks.append(candidate.card)
+        return cards_by_decks

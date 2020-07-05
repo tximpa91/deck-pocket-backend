@@ -1,6 +1,6 @@
 from graphene import Mutation, String, Field, List
 from deck_pocket.graphql_schema.deck.deck_schema import DeckSchema
-from deck_pocket.models import Card, Deck, CardForDeck
+from deck_pocket.models import Card, Deck, CardForDeck, WishList, MyCards
 from django.db import transaction
 from deck_pocket.graphql_fields.custom_fields import DeckDictionary
 from django.utils import timezone
@@ -33,6 +33,10 @@ class CreateOrUpdateDeck(Mutation):
                 deck.updated = timezone.now()
             else:
                 deck = Deck(name=name, deck_type=deck_type, user_deck=user, updated=timezone.now())
+                wishlist = WishList.get_or_create(user)
+                my_cards = MyCards.get_or_create(user)
+                wishlist.deck_id.add(deck)
+                my_cards.deck_id.add(deck)
             # Associate cards to a deck
             if cards:
                 CardForDeck.remove_cards(deck=deck)

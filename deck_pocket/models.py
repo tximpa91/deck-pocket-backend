@@ -119,6 +119,10 @@ class Card(DefaultDate):
         except Card.DoesNotExist:
             raise GraphQLError(f"Card: {card}, doesnt exists")
 
+    @staticmethod
+    def get_duplicated(card_id, candidates):
+        return list(filter(lambda card: card.card_id == card_id, candidates))
+
     class Meta:
         db_table = "DeckPocket_Card"
 
@@ -137,19 +141,30 @@ class Deck(DefaultDate):
         except Deck.DoesNotExist:
             raise GraphQLError(f"Deck: {deck_id}, doesnt exists")
 
+
+
     class Meta:
         db_table = "Deck"
 
 
-class Whishlist(DefaultDate):
-    whishlist_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='Whishlist')
-    user_whishlist = models.ForeignKey('DeckPocketUser', models.CASCADE,
-                                       related_name='user_whishlist', blank=True, null=True, db_column='user_whishlist')
-    cards = models.ManyToManyField('Card', db_column='cards', related_name='whish_cards', db_table='WhishlistCard')
+class WishList(DefaultDate):
+    wish_list_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='Wishlist')
+    user_wish_list = models.ForeignKey('DeckPocketUser', models.CASCADE,
+                                       related_name='user_wishlist', blank=True, null=True, db_column='user_wishlist')
+    deck_id = models.ManyToManyField(Deck, db_column='deck_id', related_name='wish_decks', db_table='WishlistDecks')
+
+    @staticmethod
+    def get_or_create(user):
+        try:
+            return WishList.objects.get(user_wish_list=user)
+        except WishList.DoesNotExist:
+            wish_list = WishList()
+            wish_list.save()
+            return wish_list
 
     class Meta:
-        db_table = 'Whishlist'
+        db_table = 'WishList'
 
 
 class MyCards(DefaultDate):
@@ -157,7 +172,16 @@ class MyCards(DefaultDate):
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True, default='MyCards')
     user_cards = models.ForeignKey('DeckPocketUser', models.CASCADE,
                                    related_name='user_cards', blank=True, null=True, db_column='user_cards')
-    cards = models.ManyToManyField('Card', db_column='cards', related_name='my_cards', db_table='MyCard')
+    deck_id = models.ManyToManyField(Deck, db_column='deck_id', related_name='my_cards', db_table='MyCard')
+
+    @staticmethod
+    def get_or_create(user):
+        try:
+            return MyCards.objects.get(user_cards=user)
+        except MyCards.DoesNotExist:
+            my_cards = MyCards()
+            my_cards.save()
+            return my_cards
 
     class Meta:
         db_table = 'MyCards'

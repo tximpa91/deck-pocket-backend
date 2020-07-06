@@ -47,6 +47,7 @@ class Query(graphene.ObjectType):
     def resolve_wish_list(self, info, **kwargs):
         result = []
         user = info.context.data.get('user')
+        info.context.data['wishlist'] = True
         wish_list = WishList.objects.get(user_wish_list=user)
         for deck in wish_list.deck_id.all():
             candidate = deck.deck_for_card.filter(have_it=False)
@@ -68,6 +69,7 @@ class Query(graphene.ObjectType):
     def resolve_my_cards(self, info, **kwargs):
         result = []
         user = info.context.data.get('user')
+        info.context.data['mycards'] = True
         my_cards = MyCards.objects.get(user_cards=user)
         for deck in my_cards.deck_id.all():
             candidate = deck.deck_for_card.filter(have_it=True)

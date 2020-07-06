@@ -8,6 +8,12 @@ class DeckSchema(DjangoObjectType):
     cards = graphene.List(CardForDeckSchema)
 
     def resolve_cards(self, info, **kwargs):
+        my_cards = info.context.data.get('mycards')
+        wishlist = info.context.data.get('wishlist')
+        if my_cards:
+            return CardForDeck.objects.filter(deck=self, have_it=True)
+        if wishlist:
+            return CardForDeck.objects.filter(deck=self, have_it=False)
         return CardForDeck.objects.filter(deck=self)
 
     class Meta:

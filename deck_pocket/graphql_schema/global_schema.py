@@ -6,6 +6,7 @@ from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
 from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
 from graphql import GraphQLError
 from django.core.cache import cache
+import logging
 
 
 class Query(graphene.ObjectType):
@@ -36,8 +37,10 @@ class Query(graphene.ObjectType):
             cache.set(key, result)
             return result
         except Exception as error:
-            return result
+            logging.error(str(error))
             print(str(error))
+            return result
+
 
     def resolve_decks(self, info, **kwargs):
         user = info.context.data.get('user')

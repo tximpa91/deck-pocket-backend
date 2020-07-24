@@ -22,7 +22,7 @@ class Query(graphene.ObjectType):
 
     def resolve_card(self, info, card_name, **kwargs):
         distinct = kwargs.get('distinct', 0)
-        key = str(distinct + card_name)
+        key = str(distinct) + card_name
         cached_data = cache.get(key)
         if cached_data:
             return cached_data

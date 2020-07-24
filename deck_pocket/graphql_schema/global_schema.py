@@ -21,18 +21,23 @@ class Query(graphene.ObjectType):
         return Card.objects.all()
 
     def resolve_card(self, info, card_name, **kwargs):
-        distinct = kwargs.get('distinct', 0)
-        key = str(distinct) + card_name
-        #cached_data = cache.get(key)
-        #if cached_data:
-            #return cached_data
-        #else:
-        queryset = Card.objects.filter(name__icontains=card_name)
-        if distinct:
-            queryset = queryset.distinct('name')
-        result = first(queryset, kwargs)
-        cache.set(key, result)
-        return result
+        result = None
+        try:
+            distinct = kwargs.get('distinct', 0)
+            key = str(distinct) + card_name
+            #cached_data = cache.get(key)
+            #if cached_data:
+                #return cached_data
+            #else:
+            queryset = Card.objects.filter(name__icontains=card_name)
+            if distinct:
+                queryset = queryset.distinct('name')
+            result = first(queryset, kwargs)
+            cache.set(key, result)
+            return result
+        except Exception as error:
+            return result
+            print(str(error))
 
     def resolve_decks(self, info, **kwargs):
         user = info.context.data.get('user')

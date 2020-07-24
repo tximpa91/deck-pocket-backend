@@ -40,7 +40,7 @@ defusedxml==0.6.0
 distlib==0.3.0
 dj-database-url==0.5.0
 Django==3.0.7
-django-bmemcached==0.3.0
+django-bmemcached==0.2.4
 django-celery-beat==2.0.0
 django-cors-headers==3.2.1
 django-filter==2.2.0

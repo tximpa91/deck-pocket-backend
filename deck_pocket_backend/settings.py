@@ -10,13 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import os
-import firebase_admin
 import logging
-import django_heroku
+import os
+
 import dj_database_url
-from firebase_admin import credentials
+import django_heroku
+import firebase_admin
 from corsheaders.defaults import default_headers
+from firebase_admin import credentials
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -28,7 +29,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '9uox7#=-+mn@(uh^ehzpa$*ylbb)g#7xs6dlee1y5+n%(d7azw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -226,13 +227,46 @@ ASGI_APPLICATION = 'deck_pocket_backend.routing.application'
 #  Add configuration for static files storage using whitenoise
 STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 CONN_MAX_AGE = 0
+
+servers = os.environ.get('MEMCACHIER_SERVERS')
+username = os.environ.get('MEMCACHIER_USERNAME')
+password = os.environ.get('MEMCACHIER_PASSWORD')
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+    if DEBUG
+    else
+    {
+        'default': {
+            # Use django-bmemcached
+            'BACKEND': 'django_bmemcached.memcached.BMemcached',
+
+            # TIMEOUT is not the connection timeout! It's the default expiration
+            # timeout that should be applied to keys! Setting it to `None`
+            # disables expiration.
+            'TIMEOUT': 300,
+
+            'LOCATION': servers,
+
+            'OPTIONS': {
+                'username': username,
+                'password': password,
+            }
+        }
+    }
+
+}
+
 if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'DeckPocket',
+            'NAME': 'deckpocket',
             'USER': 'postgres',
-            'PASSWORD': 'docker',
+            'PASSWORD': 'deckpocket',
             'HOST': 'localhost',
             'PORT': '5432',
         }

@@ -87,20 +87,22 @@ class Card(DefaultDate):
     mkm_url = models.URLField(max_length=2500, blank=True, null=True)
 
     def update_card(self):
-        update = False
-        CardMarketAPI(self).get_info()
-        time_now = timezone.now().strftime('%Y-%m-%d')
-        if self.updated is None:
-            update = True
-        elif self.updated.strftime('%Y-%m-%d') != time_now:
-            update = True
-        if update:
-            mkm_info = CardMarketAPI(self).get_info()
-            if mkm_info:
-                self.price = mkm_info['priceGuide']['TREND']
-                self.mkm_url = settings.CARD_MARKET_URL + mkm_info['website']
-                self.updated = timezone.now()
-                self.save()
+        try:
+            update = False
+            time_now = timezone.now().strftime('%Y-%m-%d')
+            if self.updated is None:
+                update = True
+            elif self.updated.strftime('%Y-%m-%d') != time_now:
+                update = True
+            if update:
+                mkm_info = CardMarketAPI(self).get_info()
+                if mkm_info:
+                    self.price = mkm_info['priceGuide']['TREND']
+                    self.mkm_url = settings.CARD_MARKET_URL + mkm_info['website']
+                    self.updated = timezone.now()
+                    self.save()
+        except Exception as error:
+            pass
 
     @staticmethod
     def get_cards(cards):

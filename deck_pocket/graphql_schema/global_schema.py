@@ -24,11 +24,9 @@ class Query(graphene.ObjectType):
     def resolve_card(self, info, card_name, **kwargs):
         result = None
         try:
-
             distinct = kwargs.get('distinct', 0)
             key = str(distinct) + card_name
             cached_data = cache.get(key)
-            print(str(cached_data))
             if cached_data:
                 return cached_data
             else:
@@ -39,7 +37,6 @@ class Query(graphene.ObjectType):
             cache.set(key, result)
             return result
         except Exception as error:
-            print(str(error))
             return result
 
 

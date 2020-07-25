@@ -38,6 +38,7 @@ class Query(graphene.ObjectType):
             cache.set(key, result)
             return result
         except Exception as error:
+            print(str(error))
             return result
 
 

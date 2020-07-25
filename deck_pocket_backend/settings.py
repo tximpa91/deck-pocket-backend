@@ -261,8 +261,6 @@ else:
     }
 
 
-print(CACHES)
-
 if DEBUG:
     DATABASES = {
         'default': {

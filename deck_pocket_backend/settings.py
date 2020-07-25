@@ -232,14 +232,16 @@ servers = os.environ.get('MEMCACHIER_SERVERS')
 username = os.environ.get('MEMCACHIER_USERNAME')
 password = os.environ.get('MEMCACHIER_PASSWORD')
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
+if DEBUG:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+            'LOCATION': '127.0.0.1:11211',
+        }
+
     }
-    if DEBUG
-    else
-    {
+else:
+    CACHES = {
         'default': {
             # Use django-bmemcached
             'BACKEND': 'django_bmemcached.memcached.BMemcached',
@@ -258,7 +260,6 @@ CACHES = {
         }
     }
 
-}
 
 if DEBUG:
     DATABASES = {

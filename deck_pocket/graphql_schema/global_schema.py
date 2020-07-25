@@ -1,11 +1,11 @@
 import graphene
 from .card.card_schema import CardSchema
 from .deck.deck_schema import DeckSchema
-from itertools import chain
 from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
 from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
 from graphql import GraphQLError
 from django.core.cache import cache
+
 
 
 class Query(graphene.ObjectType):
@@ -21,18 +21,22 @@ class Query(graphene.ObjectType):
         return Card.objects.all()
 
     def resolve_card(self, info, card_name, **kwargs):
-        distinct = kwargs.get('distinct', 0)
-        key = str(distinct + card_name)
-        cached_data = cache.get(key)
-        if cached_data:
-            return cached_data
-        else:
-            queryset = Card.objects.filter(name__icontains=card_name)
-            if distinct:
-                queryset = queryset.distinct('name')
-        result = first(queryset, kwargs)
-        cache.set(key, result)
-        return result
+        result = None
+        try:
+            distinct = kwargs.get('distinct', 0)
+            key = str(distinct) + card_name
+            cached_data = cache.get(key)
+            if cached_data:
+                return cached_data
+            else:
+                queryset = Card.objects.filter(name__icontains=card_name)
+                if distinct:
+                    queryset = queryset.distinct('name')
+                result = first(queryset, kwargs)
+            cache.set(key, result)
+            return result
+        except Exception as error:
+            return result
 
     def resolve_decks(self, info, **kwargs):
         user = info.context.data.get('user')
@@ -91,7 +95,6 @@ class Query(graphene.ObjectType):
         for deck in my_cards.deck_id.all():
             candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=True)
             for candidate in candidates_cards:
-                print(candidate.card.card_id)
                 if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
                     cards_by_decks.append(candidate.card)
         return cards_by_decks

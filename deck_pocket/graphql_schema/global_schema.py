@@ -28,6 +28,7 @@ class Query(graphene.ObjectType):
             distinct = kwargs.get('distinct', 0)
             key = str(distinct) + card_name
             cached_data = cache.get(key)
+            print(str(cached_data))
             if cached_data:
                 return cached_data
             else:

@@ -16,18 +16,35 @@ class CardMarketAPI(object):
         card['expansionRatio'] = fuzz.ratio(card.get('expansionName').lower(), self.card.set_name.lower())
         return card
 
+    def filter_response_by_ratio_and_expansion(self, partial_response: list, ratio: int, expansion_ratio: int):
+        return list(filter(lambda card: (card.get('ratio') >= ratio and card.get('expansionRatio') >= expansion_ratio),
+                           partial_response))
+
     def clean_response(self, response) -> dict:
-        match_string = list(map(self.add_matchstring, response))
-        partial_response = list(filter(lambda card: (card.get('ratio') > 80 and card.get('expansionRatio') > 80),
-                                       match_string))
-        final_response = sorted(partial_response, key=itemgetter('ratio'), reverse=True)
-        return final_response[0] if final_response else None
+        try:
+            match_string = list(map(self.add_matchstring, response))
+            partial_response = self.filter_response_by_ratio_and_expansion(match_string, 80, 80)
+            if not partial_response:
+                fixture_match_string = self.filter_response_by_ratio_and_expansion(match_string, 80, 60)
+                if fixture_match_string:
+                    final_response = sorted(fixture_match_string, key=itemgetter('ratio'), reverse=True)[0]
+                else:
+                    re_do_matching = sorted(match_string, key=itemgetter('ratio', 'expansionRatio'),
+                                            reverse=True)
+                    final_response = re_do_matching[0]
+            else:
+                final_response = sorted(partial_response, key=itemgetter('ratio'), reverse=True)[0]
+            return final_response
+        except Exception as error:
+            return dict
 
     def get_info(self) -> dict:
         try:
             response_for_card = self.mkm.market_place.find_product(params={"search": self.card.name})
             card_mkm = self.clean_response(response_for_card.json()['product'])
-            response_price = self.mkm.market_place.product(product=card_mkm.get('idProduct'))
-            return response_price.json()['product']
-        except:
+            if card_mkm:
+                response_price = self.mkm.market_place.product(product=card_mkm.get('idProduct'))
+                return response_price.json()['product']
+            return dict
+        except Exception as error:
             return dict

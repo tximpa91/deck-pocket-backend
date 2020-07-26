@@ -4,7 +4,6 @@ from deck_pocket.models import Deck
 
 
 def trigger_graphene_subscriptions(sender, **kwargs):
-    print('signals are working')
     post_save_subscription(sender, **kwargs)
 
 

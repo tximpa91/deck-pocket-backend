@@ -98,7 +98,8 @@ class Card(DefaultDate):
             if update:
                 mkm_info = CardMarketAPI(self).get_info()
                 if mkm_info:
-                    self.price = mkm_info['priceGuide']['TREND']
+                    self.price = mkm_info['priceGuide']['TREND'] if mkm_info['priceGuide']['TREND'] > 0 \
+                        else mkm_info['priceGuide']['SELL']
                     self.mkm_url = settings.CARD_MARKET_URL + mkm_info['website']
                     self.updated = timezone.now()
                     self.save()

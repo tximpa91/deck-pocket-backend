@@ -5,7 +5,9 @@ from django.db import transaction
 from deck_pocket.graphql_fields.custom_fields import DeckDictionary
 from django.utils import timezone
 from graphql import GraphQLError
-import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CreateOrUpdateDeck(Mutation):
@@ -23,9 +25,11 @@ class CreateOrUpdateDeck(Mutation):
     def mutate(self, info, name, deck_type, **kwargs):
         """Create or update a deck if deck_id is not null if for update"""
         try:
+
             user = info.context.data.get('user')
             deck_id = kwargs.get('deck_id')
             cards = kwargs.get('cards')
+            logger.info(f'Create or Update Deck name : {name} , deck_type: {str(deck_type)} , cards: {str(cards)}')
             if deck_id is not None:
                 deck = Deck.get_deck(deck_id)
                 deck.name = name
@@ -65,9 +69,10 @@ class DeleteDeck(Mutation):
     @transaction.atomic
     def mutate(self, info, deck_ids, **kwargs):
         try:
+
             queryset_delete = Deck.objects.filter(deck_id__in=deck_ids)
             queryset_delete.delete()
             return DeleteDeck(message=f"Successful deleted Decks: {str(deck_ids)}")
         except Deck.DoesNotExist as error:
-            print(traceback.format_exc())
+            raise GraphQLError(str(error))
 

@@ -136,6 +136,7 @@ class Deck(DefaultDate):
     user_deck = models.ForeignKey('DeckPocketUser', models.CASCADE,
                                   related_name='deck_user', blank=True, null=True, db_column='user_deck')
     deck_type = models.CharField(max_length=255, blank=True, null=True)
+    deleted = models.BooleanField(default=False)
 
     @staticmethod
     def get_deck(deck_id):

@@ -13,22 +13,26 @@ class Command(BaseCommand):
         try:
             fields = [field.name for field in Card._meta.get_fields()
                       if field.name != 'card_id' and field.name != 'deck_cards'
-                      and field.name != 'whish_cards' and field.name != 'my_cards']
-
+                      and field.name != 'whish_cards' and field.name != 'my_cards'
+                      and field.name != 'mkm_url' and field.name != 'card_for_deck'
+                      and field.name != 'linked_card'
+                      ]
             try:
-                json_file = open('/Users/luisparada/Downloads/scryfall-all-cards.json', 'r')
+                json_file = open('/Users/luisparada/Downloads/oracle-cards-20200723170706.json', 'r')
                 data = json.load(json_file)
                 card = {}
                 for data_d in data:
-                    for key in fields:
-                        # if key == "image_uris" or key == "color_identity":
-                        #     self.stdout.write(str(data_d[key]))
-                        #     d = json.dumps(data_d[key])
-                        #     card[key] = d
-                        # else:
-                        card[key] = data_d.get(key, None)
-                    card['price'] = 0
-                    Card(**card).save()
+                    if not Card.objects.filter(oracle_id=data_d.get('id')).count():
+                        for key in fields:
+                            # if key == "image_uris" or key == "color_identity":
+                            #     self.stdout.write(str(data_d[key]))
+                            #     d = json.dumps(data_d[key])
+                            #     card[key] = d
+                            # else:
+                            card[key] = data_d.get(key, None)
+                        card['price'] = 0
+                        Card(**card).save()
+                self.stdout.write(str("Done"))
 
             except Exception as error:
                 self.stderr.write(str(error))

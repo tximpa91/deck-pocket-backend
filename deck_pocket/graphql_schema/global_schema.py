@@ -24,7 +24,7 @@ class Query(graphene.ObjectType):
         result = None
         try:
             distinct = kwargs.get('distinct', 0)
-            key = str(distinct) + card_name
+            key = str(distinct) + card_name.replace(' ', '_')
             cached_data = cache.get(key)
             if cached_data:
                 return cached_data
@@ -33,8 +33,7 @@ class Query(graphene.ObjectType):
                 if distinct:
                     queryset = queryset.distinct('name')
                 result = first(queryset, kwargs)
-            cache.set(key, result)
-            return result
+                return result
         except Exception as error:
             return result
 

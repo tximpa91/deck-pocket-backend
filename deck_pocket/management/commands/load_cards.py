@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 data = json.load(json_file)
                 card = {}
                 for data_d in data:
-                    if not Card.objects.filter(oracle_id=data_d.get('id')).count():
+                    if Card.objects.filter(id=data_d.get('id')).count() == 0:
                         for key in fields:
                             # if key == "image_uris" or key == "color_identity":
                             #     self.stdout.write(str(data_d[key]))

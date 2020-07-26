@@ -71,7 +71,7 @@ class DeleteDeck(Mutation):
         try:
 
             queryset_delete = Deck.objects.filter(deck_id__in=deck_ids)
-            queryset_delete.delete()
+            queryset_delete.update(deleted=True)
             return DeleteDeck(message=f"Successful deleted Decks: {str(deck_ids)}")
         except Deck.DoesNotExist as error:
             raise GraphQLError(str(error))

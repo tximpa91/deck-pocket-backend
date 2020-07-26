@@ -270,6 +270,14 @@ if DEBUG:
             'PASSWORD': 'deckpocket',
             'HOST': 'localhost',
             'PORT': '5432',
+            'TEST': {
+                'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                'NAME': 'deckpocket',
+                'USER': 'postgres',
+                'PASSWORD': 'deckpocket',
+                'HOST': 'localhost',
+                'PORT': '5432',
+            }
         }
 
     }

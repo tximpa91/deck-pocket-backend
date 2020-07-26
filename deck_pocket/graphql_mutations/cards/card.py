@@ -33,7 +33,7 @@ class MkmLinkMutation(Mutation):
                 mkm_link = MkmLink(card_id=card, clicked=1)
                 mkm_link.save()
 
-            return MkmLinkMutation(link='Works')
+            return MkmLinkMutation(link=str(card.mkm_url))
 
         except Exception as error:
             logger.error(f"Error trying to update MkmLink with card_id {card_id}")

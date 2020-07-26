@@ -7,6 +7,7 @@ import uuid
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 from django.conf import settings
 
+
 # Create your models here.
 
 
@@ -143,8 +144,6 @@ class Deck(DefaultDate):
         except Deck.DoesNotExist:
             raise GraphQLError(f"Deck: {deck_id}, doesnt exists")
 
-
-
     class Meta:
         db_table = "Deck"
 
@@ -200,7 +199,7 @@ class CardForDeck(DefaultDate):
     quantity = models.IntegerField(default=1)
     have_it = models.BooleanField(default=False)
     group = models.ForeignKey('GroupCards', models.CASCADE,
-                             related_name='group_for_card', blank=True, null=True, db_column='group_id')
+                              related_name='group_for_card', blank=True, null=True, db_column='group_id')
 
     @staticmethod
     def remove_cards(deck):
@@ -218,3 +217,13 @@ class GroupCards(DefaultDate):
 
     class Meta:
         db_table = "GroupCards"
+
+
+class MkmLink(DefaultDate):
+    mkm_link_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    card_id = models.ForeignKey('Card', models.CASCADE,
+                             related_name='linked_card', blank=True, null=True, db_column='card_id')
+    clicked = models.BigIntegerField(blank=True, null=True)
+
+    class Meta:
+        db_table = "MkmLink"

@@ -210,6 +210,11 @@ LOGGING = {
             'handlers': ['console'],
             'filters': ['graphql_log_filter'],
         },
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+            'propagate': False,
+        },
     },
 }
 
@@ -272,7 +277,7 @@ if DEBUG:
             'PORT': '5432',
             'TEST': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': 'deckpocket',
+                'NAME': 'deckpocket_test',
                 'USER': 'postgres',
                 'PASSWORD': 'deckpocket',
                 'HOST': 'localhost',

@@ -69,7 +69,7 @@ class Query(graphene.ObjectType):
         user = info.context.data.get('user')
         whish_list = WishList.objects.get(user_wish_list=user)
         cards_by_decks = []
-        for deck in whish_list.deck_id.all():
+        for deck in whish_list.deck_id.filter(deleted=False):
             candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=False)
             for candidate in candidates_cards:
                 if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
@@ -81,7 +81,7 @@ class Query(graphene.ObjectType):
         user = info.context.data.get('user')
         info.context.data['mycards'] = True
         my_cards = MyCards.objects.get(user_cards=user)
-        for deck in my_cards.deck_id.all():
+        for deck in my_cards.deck_id.filter(deleted=False):
             candidate = deck.deck_for_card.filter(have_it=True)
             if candidate:
                 result.append(deck)

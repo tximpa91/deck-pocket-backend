@@ -11,10 +11,10 @@ class DeckSchema(DjangoObjectType):
         my_cards = info.context.data.get('mycards')
         wishlist = info.context.data.get('wishlist')
         if my_cards:
-            return CardForDeck.objects.filter(deck=self, have_it=True)
+            return CardForDeck.objects.filter(deck=self, have_it=True).order_by('created')
         if wishlist:
-            return CardForDeck.objects.filter(deck=self, have_it=False)
-        return CardForDeck.objects.filter(deck=self)
+            return CardForDeck.objects.filter(deck=self, have_it=False).order_by('created')
+        return CardForDeck.objects.filter(deck=self).order_by('created')
 
     class Meta:
         model = Deck

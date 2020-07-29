@@ -2,6 +2,7 @@ import graphene
 from graphene_django.types import DjangoObjectType
 from deck_pocket.models import Deck
 
+
 class DeckDictionary(graphene.InputObjectType):
     card_id = graphene.String()
     have_it = graphene.Boolean()
@@ -23,4 +24,3 @@ def wrap_querys(model, query_params):
 class DeckQl(DjangoObjectType):
     class Meta:
         model = Deck
-

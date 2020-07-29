@@ -124,6 +124,13 @@ class Card(DefaultDate):
             raise GraphQLError(f"Card: {card}, doesnt exists")
 
     @staticmethod
+    def get_card(card_id: str):
+        try:
+            return Card.objects.get(card_id=card_id)
+        except Exception as error:
+            raise GraphQLError(str(error))
+
+    @staticmethod
     def get_duplicated(card_id, candidates):
         return list(filter(lambda card: card.card_id == card_id, candidates))
 

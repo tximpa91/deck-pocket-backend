@@ -192,14 +192,16 @@ class CreateOrUpdateDeckV2(Mutation):
         try:
             deck_id = kwargs.get('deck_id')
             cards = kwargs.get('cards')
+            user = info.context.data.get('user')
             logger.info(f'Create or Update Deck name : {name} , deck_type: {str(deck_type)} , cards: {str(cards)}')
+            Deck.get_deck_by_name(name, user)
             if deck_id is not None:
                 deck = Deck.get_deck(deck_id)
                 deck.name = name
                 deck.deck_type = deck_type
                 deck.updated = timezone.now()
             else:
-                user = info.context.data.get('user')
+
                 deck = Deck(name=name, deck_type=deck_type, user_deck=user, updated=timezone.now())
                 wishlist = WishList.get_or_create(user)
                 my_cards = MyCards.get_or_create(user)

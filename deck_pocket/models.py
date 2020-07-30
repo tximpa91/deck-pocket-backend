@@ -152,6 +152,12 @@ class Deck(DefaultDate):
     budget_needed = models.DecimalField(default=0, max_digits=9, decimal_places=2)
     cards_had = models.IntegerField(default=0)
 
+    @staticmethod
+    def get_deck_by_name(name, user):
+        deck = Deck.objects.filter(name=name, user_deck=user)
+        if deck.count() > 0:
+            raise GraphQLError(f"Deck with name: {name} already exists")
+
     def calculate_meta_data(self, price, difference, have_it):
         if not have_it:
             self.cards_had = self.cards_had - difference

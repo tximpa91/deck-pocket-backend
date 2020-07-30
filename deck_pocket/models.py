@@ -6,6 +6,7 @@ from django.utils import timezone
 import uuid
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 from django.conf import settings
+from decimal import Decimal
 
 
 # Create your models here.
@@ -145,6 +146,24 @@ class Deck(DefaultDate):
                                   related_name='deck_user', blank=True, null=True, db_column='user_deck')
     deck_type = models.CharField(max_length=255, blank=True, null=True)
     deleted = models.BooleanField(default=False)
+    total_cards = models.IntegerField(default=0)
+    total_price = models.DecimalField(default=0, max_digits=9, decimal_places=2)
+    cards_needed = models.IntegerField(default=0)
+    budget_needed = models.DecimalField(default=0, max_digits=9, decimal_places=2)
+    cards_had = models.IntegerField(default=0)
+
+    def calculate_meta_data(self, price, difference, have_it):
+        if not have_it:
+            self.cards_had = self.cards_had - difference
+            self.cards_needed = self.cards_needed + difference
+            self.budget_needed = self.budget_needed + Decimal(price * difference)
+
+        else:
+            self.cards_had = self.cards_had + difference
+            self.cards_needed = self.cards_needed - difference
+            self.budget_needed = self.budget_needed - Decimal(price * difference)
+
+
 
     @staticmethod
     def get_deck(deck_id):

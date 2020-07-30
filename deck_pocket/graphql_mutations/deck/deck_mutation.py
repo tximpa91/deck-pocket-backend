@@ -5,6 +5,7 @@ from django.db import transaction
 from deck_pocket.graphql_fields.custom_fields import DeckDictionary
 from django.utils import timezone
 from graphql import GraphQLError
+from decimal import Decimal
 import logging
 
 logger = logging.getLogger(__name__)
@@ -97,15 +98,52 @@ class AddCardToDeck(Mutation):
             deck = Deck.get_deck(deck_id)
             card_to_add = Card.get_card(card.get('card_id'))
             card_to_add.update_card()
-            card_for_deck = CardForDeck.objects.filter(deck=deck, card=card_to_add)
+            card_for_deck = deck.deck_for_card.filter(card=card_to_add)
+            difference = 0
+            change_quantity = False
             if card_for_deck.count():
+
                 card_for_deck = card_for_deck[0]
+                if card_for_deck.quantity != card.get('quantity'):
+                    change_quantity = True
+                    if card_for_deck.quantity > int(card.get('quantity')):
+                        difference = card_for_deck.quantity - int(card.get('quantity'))
+                        deck.total_price = deck.total_price - (Decimal((card_to_add.price * difference)))
+                        deck.total_cards = deck.total_cards - int(difference)
+                        if card_for_deck.have_it:
+                            deck.cards_had = deck.cards_had - difference
+                        else:
+                            deck.cards_needed = deck.cards_needed - difference
+                            deck.budget_needed = deck.budget_needed - (Decimal((card_to_add.price * difference)))
+                    else:
+                        difference = int(card.get('quantity')) - card_for_deck.quantity
+                        deck.total_price = deck.total_price + (Decimal((card_to_add.price * difference)))
+                        deck.total_cards = deck.total_cards + int(difference)
+                        if card_for_deck.have_it:
+                            deck.cards_had = deck.cards_had + difference
+                        else:
+                            deck.cards_needed = deck.cards_needed + difference
+                            deck.budget_needed = deck.budget_needed + (Decimal((card_to_add.price * difference)))
+
+                if card_for_deck.have_it != card.get('have_it'):
+                    deck.calculate_meta_data(card_to_add.price,
+                                             difference if change_quantity else card_for_deck.quantity,
+                                             not card_for_deck.have_it)
                 card_for_deck.quantity = card_for_deck.quantity if card_for_deck.quantity \
                                                                    == card.get('quantity') else card.get('quantity')
                 card_for_deck.have_it = card_for_deck.have_it if card_for_deck.have_it \
                                                                  == card.get('have_it') else card.get('have_it')
                 card_for_deck.save()
             else:
+                deck.total_price = deck.total_price + Decimal((card_to_add.price * int(card.get('quantity'))))
+                deck.total_cards = deck.total_cards + int(card.get('quantity'))
+                if card.get('have_it'):
+                    deck.cards_had = deck.cards_had + int(card.get('quantity'))
+
+                else:
+                    deck.cards_needed = deck.cards_needed + int(card.get('quantity'))
+                    deck.budget_needed = deck.budget_needed + Decimal(card_to_add.price * int(card.get('quantity')))
+
                 CardForDeck(card=card_to_add, deck=deck,
                             have_it=card.get('have_it'),
                             quantity=card.get('quantity')

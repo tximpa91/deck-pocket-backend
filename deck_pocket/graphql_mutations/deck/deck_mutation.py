@@ -168,6 +168,13 @@ class DeleteCardToDeck(Mutation):
         try:
             card_for_deck = CardForDeck.objects.get(card_for_deck_id=card_for_deck_id)
             deck = card_for_deck.deck
+            deck.total_cards = deck.total_cards - card_for_deck.quantity
+            deck.total_price = deck.total_price - Decimal(card_for_deck.quantity * card_for_deck.card.price)
+            if card_for_deck.have_it:
+                deck.cards_had = deck.cards_had - card_for_deck.quantity
+            else:
+                deck.cards_needed = deck.cards_needed - card_for_deck.quantity
+                deck.budget_needed = deck.budget_needed - Decimal(card_for_deck.quantity * card_for_deck.card.price)
             card_for_deck.delete()
             deck.updated = timezone.now()
             deck.save()

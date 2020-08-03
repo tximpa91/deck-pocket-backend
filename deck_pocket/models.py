@@ -158,17 +158,38 @@ class Deck(DefaultDate):
         if deck.count() > 0:
             raise GraphQLError(f"Deck with name: {name} already exists")
 
-    def calculate_meta_data(self, price, difference, have_it):
-        if not have_it:
-            self.cards_had = self.cards_had - difference
-            self.cards_needed = self.cards_needed + difference
-            self.budget_needed = self.budget_needed + Decimal(price * difference)
+    def calculate_meta_data(self, card_to_deck, new_condition):
+        if not new_condition:
+            self.cards_had = self.cards_had - card_to_deck.quantity
+            self.cards_needed = self.cards_needed + card_to_deck.quantity
+            self.budget_needed = self.budget_needed + Decimal(card_to_deck.price * card_to_deck.quantity)
 
         else:
-            self.cards_had = self.cards_had + difference
-            self.cards_needed = self.cards_needed - difference
-            self.budget_needed = self.budget_needed - Decimal(price * difference)
+            self.cards_had = self.cards_had + card_to_deck.quantity
+            self.cards_needed = self.cards_needed - card_to_deck.quantity
+            self.budget_needed = self.budget_needed - Decimal(card_to_deck.price * card_to_deck.quantity)
 
+        card_to_deck.have_it = new_condition
+
+    def add_or_delete_card(self, card, card_for_deck, card_to_add):
+        if card.get('add'):
+            self.total_price = self.total_price + (Decimal((card_to_add.price * card.get('quantity'))))
+            self.total_cards = self.total_cards + int(card.get('quantity'))
+            if card_for_deck.have_it:
+                self.cards_had = self.cards_had + card.get('quantity')
+            else:
+                self.cards_needed = self.cards_needed + card.get('quantity')
+                self.budget_needed = self.budget_needed + (Decimal((card_to_add.price * card.get('quantity'))))
+
+        else:
+            self.total_price = self.total_price - (Decimal((card_to_add.price * card.get('quantity'))))
+            self.total_cards = self.total_cards - int(card.get('quantity'))
+            if card_for_deck.have_it:
+                self.cards_had = self.cards_had - card.get('quantity')
+            else:
+                self.cards_needed = self.cards_needed - card.get('quantity')
+                self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * card.get('quantity'))))
+        card_for_deck.quantity = card.get('quantity')
 
 
     @staticmethod

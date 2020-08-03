@@ -9,6 +9,14 @@ class DeckDictionary(graphene.InputObjectType):
     quantity = graphene.Int()
 
 
+class DeckModifyDictionary(graphene.InputObjectType):
+    card_for_deck_id = graphene.String()
+    have_it = graphene.Boolean()
+    quantity = graphene.Int()
+    add = graphene.Boolean()
+
+
+
 def first(queryset, limit):
     limit_query = limit.get('first')
     if limit_query:

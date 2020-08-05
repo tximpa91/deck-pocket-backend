@@ -145,6 +145,7 @@ class ModifyCardToDeck(Mutation):
             if card_for_deck.have_it != card.get('have_it'):
                 deck.calculate_meta_data(card_for_deck, card.get('have_it'))
             deck.add_or_delete_card(card, card_for_deck, card_to_add)
+            card_for_deck.updated = timezone.now()
             card_for_deck.save()
             deck.updated = timezone.now()
             deck.save()

@@ -190,6 +190,7 @@ class Deck(DefaultDate):
                 self.cards_needed = self.cards_needed - card.get('quantity')
                 self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * card.get('quantity'))))
         card_for_deck.quantity = card.get('quantity')
+        card_for_deck.updated = timezone.now()
 
 
     @staticmethod

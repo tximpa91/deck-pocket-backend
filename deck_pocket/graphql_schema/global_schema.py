@@ -2,7 +2,7 @@ import graphene
 from .card.card_schema import CardSchema
 from .deck.deck_schema import DeckSchema
 from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
-from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
+from deck_pocket.graphql_fields.custom_fields import first, wrap_querys, generic_sort
 from graphql import GraphQLError
 from django.core.cache import cache
 
@@ -38,14 +38,18 @@ class Query(graphene.ObjectType):
             return result
 
     def resolve_decks(self, info, **kwargs):
-        user = info.context.data.get('user')
-        deck_name = kwargs.get('deck_name')
-        if deck_name:
-            queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user, deleted=False), kwargs)
-        else:
-            queryset = first(Deck.objects.filter(user_deck=user, deleted=False), kwargs)
-        queryset = queryset.order_by('-updated')
-        return queryset
+        try:
+            user = info.context.data.get('user')
+            deck_name = kwargs.get('deck_name')
+            if deck_name:
+                queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user, deleted=False), kwargs)
+            else:
+                queryset = first(Deck.objects.filter(user_deck=user, deleted=False), kwargs)
+            queryset = generic_sort(queryset, kwargs, info)
+
+            return queryset
+        except Exception as error:
+            raise GraphQLError(str(error))
 
     def resolve_deck(self, info, deck_id, **kwargs):
         try:

@@ -162,12 +162,12 @@ class Deck(DefaultDate):
         if not new_condition:
             self.cards_had = self.cards_had - card_to_deck.quantity
             self.cards_needed = self.cards_needed + card_to_deck.quantity
-            self.budget_needed = self.budget_needed + Decimal(card_to_deck.price * card_to_deck.quantity)
+            self.budget_needed = self.budget_needed + Decimal(card_to_deck.card.price * card_to_deck.quantity)
 
         else:
             self.cards_had = self.cards_had + card_to_deck.quantity
             self.cards_needed = self.cards_needed - card_to_deck.quantity
-            self.budget_needed = self.budget_needed - Decimal(card_to_deck.price * card_to_deck.quantity)
+            self.budget_needed = self.budget_needed - Decimal(card_to_deck.card.price * card_to_deck.quantity)
 
         card_to_deck.have_it = new_condition
 

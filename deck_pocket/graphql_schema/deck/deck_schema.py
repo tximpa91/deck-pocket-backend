@@ -21,7 +21,7 @@ class DeckSchema(DjangoObjectType):
         return generic_sort(queryset=queryset,
                             sort=sort,
                             info=None,
-                            default_order={'sort': 'created', 'order': 'desc'})
+                            default_order={'sort': 'created', 'order': 'asc'})
 
     class Meta:
         model = Deck

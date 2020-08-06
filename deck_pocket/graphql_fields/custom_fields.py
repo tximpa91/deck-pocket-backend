@@ -38,7 +38,7 @@ def generic_sort(queryset, sort, info=None, default_order=None):
         return queryset.order_by(
             f'{GENERIC_SORT_ORDER[default_order.get("order", "")]}{default_order.get("sort", "")}')
     else:
-        return queryset.order_by('-updated')
+        return queryset.order_by('created')
 
 
 def wrap_querys(model, query_params):

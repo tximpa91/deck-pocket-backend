@@ -7,13 +7,13 @@ import uuid
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 from django.conf import settings
 from decimal import Decimal
-
+from django.utils import timezone
 
 # Create your models here.
 
 
 class DefaultDate(models.Model):
-    created = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(blank=True, null=True, db_column='updated')
 
     class Meta:

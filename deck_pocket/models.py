@@ -154,7 +154,7 @@ class Deck(DefaultDate):
 
     @staticmethod
     def get_deck_by_name(name, user):
-        deck = Deck.objects.filter(name=name, user_deck=user)
+        deck = Deck.objects.filter(name=name, user_deck=user, deleted=False)
         if deck.count() > 0:
             raise GraphQLError(f"Deck with name: {name} already exists")
 

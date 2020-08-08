@@ -172,24 +172,28 @@ class Deck(DefaultDate):
         card_to_deck.have_it = new_condition
 
     def add_or_delete_card(self, card, card_for_deck, card_to_add):
+        quantity = None
         if card.get('add'):
-            self.total_price = self.total_price + (Decimal((card_to_add.price * card.get('quantity'))))
-            self.total_cards = self.total_cards + int(card.get('quantity'))
+            quantity = card.get('quantity') - card_for_deck.quantity
+            self.total_price = self.total_price + (Decimal((card_to_add.price * quantity)))
+            self.total_cards = self.total_cards + int(quantity)
+            card_for_deck.quantity = card_for_deck.quantity + quantity
             if card_for_deck.have_it:
-                self.cards_had = self.cards_had + card.get('quantity')
+                self.cards_had = self.cards_had + quantity
             else:
-                self.cards_needed = self.cards_needed + card.get('quantity')
-                self.budget_needed = self.budget_needed + (Decimal((card_to_add.price * card.get('quantity'))))
+                self.cards_needed = self.cards_needed + quantity
+                self.budget_needed = self.budget_needed + (Decimal((card_to_add.price * quantity)))
 
         else:
-            self.total_price = self.total_price - (Decimal((card_to_add.price * card.get('quantity'))))
-            self.total_cards = self.total_cards - int(card.get('quantity'))
+            quantity = card_for_deck.quantity - card.get('quantity')
+            self.total_price = self.total_price - (Decimal((card_to_add.price * quantity)))
+            self.total_cards = self.total_cards - int(quantity)
+            card_for_deck.quantity = card_for_deck.quantity - quantity
             if card_for_deck.have_it:
-                self.cards_had = self.cards_had - card.get('quantity')
+                self.cards_had = self.cards_had - quantity
             else:
-                self.cards_needed = self.cards_needed - card.get('quantity')
-                self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * card.get('quantity'))))
-        card_for_deck.quantity = card.get('quantity')
+                self.cards_needed = self.cards_needed - quantity
+                self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * quantity)))
         card_for_deck.updated = timezone.now()
 
 

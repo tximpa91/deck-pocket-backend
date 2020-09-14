@@ -18,7 +18,6 @@ class MkmLinkMutation(Mutation):
     @transaction.atomic
     def mutate(self, info, card_id, **kwargs):
         try:
-            print(__name__)
             logger.info(f"Retrieve MKM link: {card_id}")
             card = Card.objects.get(card_id=card_id)
             mkm_link = MkmLink.objects.filter(card_id=card)

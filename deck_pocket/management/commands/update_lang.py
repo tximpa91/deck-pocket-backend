@@ -13,17 +13,13 @@ class Command(BaseCommand):
         try:
             json_file = open('/Users/luisparada/Downloads/all-cards-20200914091746.json', 'r')
             data = json.load(json_file)
-
-            cards_pending = Card.objects.filter(lang__isnull=True).values_list('id', flat=True)
-            self.stdout.write(str(len(data)))
-            filtered_data = [
-                card for card in data if card.get('id') in cards_pending
-            ]
-            self.stdout.write(str(f"filtered data: {len(data)}"))
-            for card in filtered_data:
-                card_to_update = Card.objects.get(id=card.get('id'))
-                card_to_update.lang = card.get('lang')
-                card_to_update.save()
+            for card in data:
+                card_to_update = Card.objects.filter(id=card.get('id'))
+                if card_to_update.count() > 0:
+                    card_to_update = card_to_update[0]
+                    if card_to_update.lang is None:
+                        card_to_update.lang = card.get('lang')
+                        card_to_update.save()
 
             self.stdout.write(str(len("done")))
 

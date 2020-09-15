@@ -2,7 +2,7 @@ import graphene
 from .card.card_schema import CardSchema
 from .deck.deck_schema import DeckSchema
 from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
-from deck_pocket.graphql_fields.custom_fields import first, wrap_querys
+from deck_pocket.graphql_fields.custom_fields import first, wrap_querys, generic_sort
 from graphql import GraphQLError
 from django.core.cache import cache
 
@@ -38,14 +38,18 @@ class Query(graphene.ObjectType):
             return result
 
     def resolve_decks(self, info, **kwargs):
-        user = info.context.data.get('user')
-        deck_name = kwargs.get('deck_name')
-        if deck_name:
-            queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user, deleted=False), kwargs)
-        else:
-            queryset = first(Deck.objects.filter(user_deck=user, deleted=False), kwargs)
-        queryset = queryset.order_by('-updated')
-        return queryset
+        try:
+            user = info.context.data.get('user')
+            deck_name = kwargs.get('deck_name')
+            if deck_name:
+                queryset = first(Deck.objects.filter(name__icontains=deck_name, user_deck=user, deleted=False), kwargs)
+            else:
+                queryset = first(Deck.objects.filter(user_deck=user, deleted=False), kwargs)
+            queryset = generic_sort(queryset, kwargs, info)
+
+            return queryset
+        except Exception as error:
+            raise GraphQLError(str(error))
 
     def resolve_deck(self, info, deck_id, **kwargs):
         try:
@@ -59,7 +63,7 @@ class Query(graphene.ObjectType):
         user = info.context.data.get('user')
         info.context.data['wishlist'] = True
         wish_list = WishList.objects.get(user_wish_list=user)
-        for deck in wish_list.deck_id.all():
+        for deck in wish_list.deck_id.filter(deleted=False):
             candidate = deck.deck_for_card.filter(have_it=False)
             if candidate:
                 result.append(deck)
@@ -91,7 +95,7 @@ class Query(graphene.ObjectType):
         user = info.context.data.get('user')
         my_cards = MyCards.objects.get(user_cards=user)
         cards_by_decks = []
-        for deck in my_cards.deck_id.all():
+        for deck in my_cards.deck_id.filter(deleted=False):
             candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=True)
             for candidate in candidates_cards:
                 if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:

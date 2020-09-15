@@ -6,13 +6,14 @@ from django.utils import timezone
 import uuid
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 from django.conf import settings
-
+from decimal import Decimal
+from django.utils import timezone
 
 # Create your models here.
 
 
 class DefaultDate(models.Model):
-    created = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(blank=True, null=True, db_column='updated')
 
     class Meta:
@@ -88,6 +89,7 @@ class Card(DefaultDate):
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0)
     mkm_url = models.URLField(max_length=2500, blank=True, null=True)
 
+
     def update_card(self):
         try:
             update = False
@@ -146,6 +148,56 @@ class Deck(DefaultDate):
                                   related_name='deck_user', blank=True, null=True, db_column='user_deck')
     deck_type = models.CharField(max_length=255, blank=True, null=True)
     deleted = models.BooleanField(default=False)
+    total_cards = models.IntegerField(default=0)
+    total_price = models.DecimalField(default=0, max_digits=9, decimal_places=2)
+    cards_needed = models.IntegerField(default=0)
+    budget_needed = models.DecimalField(default=0, max_digits=9, decimal_places=2)
+    cards_had = models.IntegerField(default=0)
+
+    @staticmethod
+    def get_deck_by_name(name, user):
+        deck = Deck.objects.filter(name=name, user_deck=user, deleted=False)
+        if deck.count() > 0:
+            raise GraphQLError(f"Deck with name: {name} already exists")
+
+    def calculate_meta_data(self, card_to_deck, new_condition):
+        if not new_condition:
+            self.cards_had = self.cards_had - card_to_deck.quantity
+            self.cards_needed = self.cards_needed + card_to_deck.quantity
+            self.budget_needed = self.budget_needed + Decimal(card_to_deck.card.price * card_to_deck.quantity)
+
+        else:
+            self.cards_had = self.cards_had + card_to_deck.quantity
+            self.cards_needed = self.cards_needed - card_to_deck.quantity
+            self.budget_needed = self.budget_needed - Decimal(card_to_deck.card.price * card_to_deck.quantity)
+
+        card_to_deck.have_it = new_condition
+
+    def add_or_delete_card(self, card, card_for_deck, card_to_add):
+        quantity = None
+        if card.get('add'):
+            quantity = card.get('quantity') - card_for_deck.quantity
+            self.total_price = self.total_price + (Decimal((card_to_add.price * quantity)))
+            self.total_cards = self.total_cards + int(quantity)
+            card_for_deck.quantity = card_for_deck.quantity + quantity
+            if card_for_deck.have_it:
+                self.cards_had = self.cards_had + quantity
+            else:
+                self.cards_needed = self.cards_needed + quantity
+                self.budget_needed = self.budget_needed + (Decimal((card_to_add.price * quantity)))
+
+        else:
+            quantity = card_for_deck.quantity - card.get('quantity')
+            self.total_price = self.total_price - (Decimal((card_to_add.price * quantity)))
+            self.total_cards = self.total_cards - int(quantity)
+            card_for_deck.quantity = card_for_deck.quantity - quantity
+            if card_for_deck.have_it:
+                self.cards_had = self.cards_had - quantity
+            else:
+                self.cards_needed = self.cards_needed - quantity
+                self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * quantity)))
+        card_for_deck.updated = timezone.now()
+
 
     @staticmethod
     def get_deck(deck_id):

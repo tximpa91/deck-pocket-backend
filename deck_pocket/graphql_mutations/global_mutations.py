@@ -1,5 +1,6 @@
 import graphene
-from .deck.deck_mutation import CreateOrUpdateDeck, DeleteDeck, AddCardToDeck, DeleteCardToDeck, CreateOrUpdateDeckV2
+from .deck.deck_mutation import CreateOrUpdateDeck, \
+    DeleteDeck, AddCardToDeck, DeleteCardToDeck, CreateOrUpdateDeckV2, ModifyCardToDeck
 from .cards.card import MkmLinkMutation
 
 
@@ -10,4 +11,5 @@ class Mutation(graphene.ObjectType):
     add_card_to_deck = AddCardToDeck.Field()
     delete_card_to_deck = DeleteCardToDeck.Field()
     create_or_update_deck_v2 = CreateOrUpdateDeckV2.Field()
+    modify_card = ModifyCardToDeck.Field()
 

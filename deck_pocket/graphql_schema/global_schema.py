@@ -62,12 +62,15 @@ class Query(graphene.ObjectType):
         result = []
         user = info.context.data.get('user')
         info.context.data['wishlist'] = True
-        wish_list = WishList.objects.get(user_wish_list=user)
-        for deck in wish_list.deck_id.filter(deleted=False):
-            candidate = deck.deck_for_card.filter(have_it=False)
-            if candidate:
-                result.append(deck)
-        return result
+        try:
+            wish_list = WishList.objects.get(user_wish_list=user)
+            for deck in wish_list.deck_id.filter(deleted=False):
+                candidate = deck.deck_for_card.filter(have_it=False)
+                if candidate:
+                    result.append(deck)
+            return result
+        except WishList.DoesNotExist:
+            return result
 
     def resolve_grouped_wish_list(self, info, **kwargs):
         user = info.context.data.get('user')
@@ -84,12 +87,15 @@ class Query(graphene.ObjectType):
         result = []
         user = info.context.data.get('user')
         info.context.data['mycards'] = True
-        my_cards = MyCards.objects.get(user_cards=user)
-        for deck in my_cards.deck_id.filter(deleted=False):
-            candidate = deck.deck_for_card.filter(have_it=True)
-            if candidate:
-                result.append(deck)
-        return result
+        try:
+            my_cards = MyCards.objects.get(user_cards=user)
+            for deck in my_cards.deck_id.filter(deleted=False):
+                candidate = deck.deck_for_card.filter(have_it=True)
+                if candidate:
+                    result.append(deck)
+            return result
+        except MyCards.DoesNotExist:
+            return result
 
     def resolve_grouped_my_cards(self, info, **kwargs):
         user = info.context.data.get('user')

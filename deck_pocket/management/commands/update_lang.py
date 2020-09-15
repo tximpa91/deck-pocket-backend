@@ -5,22 +5,27 @@ import json
 import random
 import decimal
 from django.db.models import Q
+import requests
+import time
+
 
 
 class Command(BaseCommand):
-
+    url = 'https://api.scryfall.com/cards/'
     def handle(self, *args, **options):
         try:
-            json_file = open('/Users/luisparada/Downloads/all-cards-20200914091746.json', 'r')
-            data = json.load(json_file)
-            for card in data:
-                card_to_update = Card.objects.filter(id=card.get('id'))
-                if card_to_update.count() > 0:
-                    card_to_update = card_to_update[0]
-                    if card_to_update.lang is None:
-                        card_to_update.lang = card.get('lang')
-                        card_to_update.save()
 
+            card_to_update = Card.objects.filter(lang__isnull=True)
+            self.stdout.write(str(len(card_to_update)))
+            for card in card_to_update:
+                try:
+                    r = requests.get(f"{self.url}{card.id}")
+                    payload = r.json()
+                    card.lang = payload['lang']
+                    card.save()
+                    time.sleep(0.10)
+                except Exception as error:
+                    pass
             self.stdout.write(str(len("done")))
 
         except Exception as error:

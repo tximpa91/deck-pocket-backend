@@ -60,6 +60,7 @@ class Card(DefaultDate):
     id = models.UUIDField(editable=False, blank=True, null=True)
     oracle_id = models.UUIDField(editable=False, blank=True, null=True)
     lang = models.CharField(db_column='lang', max_length=255, blank=True, null=True)
+    printed_name = models.CharField(db_column='printed_name', max_length=255, blank=True, null=True)
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True)
     uri = models.URLField(max_length=500, blank=True, null=True)
     scryfall_uri = models.URLField(max_length=500, blank=True, null=True)

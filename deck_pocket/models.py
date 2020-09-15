@@ -58,6 +58,7 @@ class Card(DefaultDate):
     card_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     id = models.UUIDField(editable=False, blank=True, null=True)
     oracle_id = models.UUIDField(editable=False, blank=True, null=True)
+    lang = models.CharField(db_column='lang', max_length=255, blank=True, null=True)
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True)
     uri = models.URLField(max_length=500, blank=True, null=True)
     scryfall_uri = models.URLField(max_length=500, blank=True, null=True)
@@ -87,6 +88,7 @@ class Card(DefaultDate):
     textless = models.BooleanField(default=False, blank=True, null=True)
     price = models.DecimalField(max_digits=9, decimal_places=2, null=True, blank=True, default=0)
     mkm_url = models.URLField(max_length=2500, blank=True, null=True)
+
 
     def update_card(self):
         try:

@@ -2,12 +2,13 @@ from django.db import models
 from oauth2_provider.models import AbstractApplication
 from django.contrib.postgres.fields import JSONField
 from graphql import GraphQLError
-from django.utils import timezone
 import uuid
+import enum
 from deck_pocket.cardmarket.cardmarket import CardMarketAPI
 from django.conf import settings
 from decimal import Decimal
 from django.utils import timezone
+
 
 # Create your models here.
 
@@ -59,6 +60,7 @@ class Card(DefaultDate):
     id = models.UUIDField(editable=False, blank=True, null=True)
     oracle_id = models.UUIDField(editable=False, blank=True, null=True)
     lang = models.CharField(db_column='lang', max_length=255, blank=True, null=True)
+    printed_name = models.CharField(db_column='printed_name', max_length=255, blank=True, null=True)
     name = models.CharField(db_column='name', max_length=255, blank=True, null=True)
     uri = models.URLField(max_length=500, blank=True, null=True)
     scryfall_uri = models.URLField(max_length=500, blank=True, null=True)
@@ -198,7 +200,6 @@ class Deck(DefaultDate):
                 self.budget_needed = self.budget_needed - (Decimal((card_to_add.price * quantity)))
         card_for_deck.updated = timezone.now()
 
-
     @staticmethod
     def get_deck(deck_id):
         try:
@@ -284,8 +285,18 @@ class GroupCards(DefaultDate):
 class MkmLink(DefaultDate):
     mkm_link_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     card_id = models.ForeignKey('Card', models.CASCADE,
-                             related_name='linked_card', blank=True, null=True, db_column='card_id')
+                                related_name='linked_card', blank=True, null=True, db_column='card_id')
     clicked = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         db_table = "MkmLink"
+
+
+class CardTypes(enum.Enum):
+    CREATURE = 'Creature'
+    ARTIFACT = 'Artifact'
+    LAND = 'Land'
+    ENCHANTMENT = 'Enchantment'
+    INSTANT = 'Instant'
+    PLANESWALKER = 'Planeswalker'
+    SORCERY = 'Sorcery'

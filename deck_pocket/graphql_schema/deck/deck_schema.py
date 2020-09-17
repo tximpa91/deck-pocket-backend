@@ -45,8 +45,45 @@ class DeckSchema(DjangoObjectType):
                             sort=sort,
                             info=None,
                             default_order={'sort': 'created', 'order': 'asc'})
+        enchantment = generic_sort(queryset=queryset.filter(
+            card__type_line__icontains=CardTypes.ENCHANTMENT.value).exclude(
+            card__type_line__icontains=CardTypes.CREATURE.value),
+                                   sort=sort,
+                                   info=None,
+                                   default_order={'sort': 'created', 'order': 'asc'})
+        artifact = generic_sort(queryset=queryset.filter(
+            card__type_line__icontains=CardTypes.ARTIFACT.value).exclude(
+            card__type_line__icontains=CardTypes.CREATURE.value).exclude(
+            card__type_line__icontains=CardTypes.LAND.value),
+                                sort=sort,
+                                info=None,
+                                default_order={'sort': 'created', 'order': 'asc'})
+        instant = generic_sort(queryset=queryset.filter(
+            card__type_line__icontains=CardTypes.INSTANT.value),
+            sort=sort,
+            info=None,
+            default_order={'sort': 'created', 'order': 'asc'})
+        sorcery = generic_sort(queryset=queryset.filter(
+            card__type_line__icontains=CardTypes.SORCERY.value),
+            sort=sort,
+            info=None,
+            default_order={'sort': 'created', 'order': 'asc'})
+        planeswalker = generic_sort(queryset=queryset.filter(
+            card__type_line__icontains=CardTypes.PLANESWALKER.value),
+            sort=sort,
+            info=None,
+            default_order={'sort': 'created', 'order': 'asc'})
 
-        return {'creature': creature, 'land': land}
+        return {
+            'creature': creature,
+            'land': land,
+            'enchantment': enchantment,
+            'artifact': artifact,
+            'instant': instant,
+            'sorcery': sorcery,
+            'planeswalker': planeswalker
+
+        }
 
     class Meta:
         model = Deck

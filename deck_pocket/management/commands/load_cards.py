@@ -18,11 +18,11 @@ class Command(BaseCommand):
                       and field.name != 'linked_card'
                       ]
             try:
-                json_file = open('/Users/luisparada/Downloads/oracle-cards-20200723170706.json', 'r')
+                json_file = open('/Users/Downloads/all-cards-20200915091813.json', 'r')
                 data = json.load(json_file)
                 card = {}
                 for data_d in data:
-                    if Card.objects.filter(id=data_d.get('id')).count() == 0:
+                    if data_d.get('lang') == 'en' or data_d.get('lang') == 'es':
                         for key in fields:
                             # if key == "image_uris" or key == "color_identity":
                             #     self.stdout.write(str(data_d[key]))

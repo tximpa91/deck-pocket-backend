@@ -27,31 +27,24 @@ def get_filtered_criteria():
     return (
         {
             'type': CardTypes.CREATURE.value,
-            'exclusions': ()
         },
         {
             'type': CardTypes.LAND.value,
-            'exclusions': ()
         },
         {
             'type': CardTypes.ENCHANTMENT.value,
-            'exclusions': (CardTypes.CREATURE.value,)
         },
         {
             'type': CardTypes.ARTIFACT.value,
-            'exclusions': (CardTypes.CREATURE.value, CardTypes.LAND.value)
         },
         {
             'type': CardTypes.INSTANT.value,
-            'exclusions': ()
         },
         {
             'type': CardTypes.SORCERY.value,
-            'exclusions': ()
         },
         {
             'type': CardTypes.PLANESWALKER.value,
-            'exclusions': ()
         },
 
     )
@@ -63,10 +56,6 @@ def get_filtered_query(queryset, sort):
         for element in get_filtered_criteria():
             queryset_for_filter = queryset
             queryset_for_exclude = queryset_for_filter.filter(card__type_line__icontains=element['type'])
-            if element['exclusions']:
-                for exclusion in element['exclusions']:
-                    queryset_for_exclude = queryset_for_exclude.exclude(card__type_line__icontains=exclusion)
-
             result.update({element['type'].lower(): generic_sort(queryset=queryset_for_exclude, sort=sort,
                                                                  info=None,
                                                                  default_order={'sort': 'created', 'order': 'asc'})})

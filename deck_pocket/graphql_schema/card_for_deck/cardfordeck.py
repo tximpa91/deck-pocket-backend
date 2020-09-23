@@ -55,7 +55,7 @@ def get_filtered_query(queryset, sort):
         result = {}
         for element in get_filtered_criteria():
             queryset_for_filter = queryset
-            queryset_for_exclude = queryset_for_filter.filter(card__type_line__icontains=element['type'])
+            queryset_for_exclude = queryset_for_filter.filter(card__type_line=element['type'])
             result.update({element['type'].lower(): generic_sort(queryset=queryset_for_exclude, sort=sort,
                                                                  info=None,
                                                                  default_order={'sort': 'created', 'order': 'asc'})})

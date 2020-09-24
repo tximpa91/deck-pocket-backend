@@ -23,43 +23,16 @@ class GroupedCardsByType(graphene.ObjectType):
     sorcery = graphene.List(CardForDeckSchema)
 
 
-def get_filtered_criteria():
-    return (
-        {
-            'type': CardTypes.CREATURE.value,
-        },
-        {
-            'type': CardTypes.LAND.value,
-        },
-        {
-            'type': CardTypes.ENCHANTMENT.value,
-        },
-        {
-            'type': CardTypes.ARTIFACT.value,
-        },
-        {
-            'type': CardTypes.INSTANT.value,
-        },
-        {
-            'type': CardTypes.SORCERY.value,
-        },
-        {
-            'type': CardTypes.PLANESWALKER.value,
-        },
-
-    )
-
-
 def get_filtered_query(queryset, sort):
     try:
         result = {}
-        for element in get_filtered_criteria():
+        for element in CardTypes:
             queryset_for_filter = queryset
-            queryset_for_exclude = queryset_for_filter.filter(card__card_type=element['type'])
+            queryset_for_exclude = queryset_for_filter.filter(card__card_type=element.value)
 
-            result.update({element['type'].lower(): generic_sort(queryset=queryset_for_exclude, sort=sort,
-                                                                 info=None,
-                                                                 default_order={'sort': 'created', 'order': 'asc'})})
+            result.update({element.value.lower(): generic_sort(queryset=queryset_for_exclude, sort=sort,
+                                                               info=None,
+                                                               default_order={'sort': 'created', 'order': 'asc'})})
         return result
     except Exception as error:
         logger.error(str(error))

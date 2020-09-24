@@ -1,7 +1,7 @@
 import graphene
-from .card.card_schema import CardSchema
+from .card.card_schema import CardSchema, CardWithGroupSchema, init_result, get_grouped_cards
 from .deck.deck_schema import DeckSchema
-from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck
+from deck_pocket.models import Card, Deck, WishList, MyCards, CardForDeck, CardTypes
 from deck_pocket.graphql_fields.custom_fields import first, wrap_querys, generic_sort
 from graphql import GraphQLError
 from django.core.cache import cache
@@ -14,8 +14,10 @@ class Query(graphene.ObjectType):
     deck = graphene.Field(DeckSchema, {'deck_id': graphene.String()})
     wish_list = graphene.List(DeckSchema)
     grouped_wish_list = graphene.List(CardSchema)
+    grouped_wish_list_with_type = graphene.Field(CardWithGroupSchema)
     my_cards = graphene.List(DeckSchema)
     grouped_my_cards = graphene.List(CardSchema)
+    grouped_my_cards_with_type = graphene.Field(CardWithGroupSchema)
 
     def resolve_all_cards(self, info):
         return Card.objects.all()
@@ -64,7 +66,7 @@ class Query(graphene.ObjectType):
         info.context.data['wishlist'] = True
         try:
             wish_list = WishList.objects.get(user_wish_list=user)
-            for deck in wish_list.deck_id.filter(deleted=False):
+            for deck in wish_list.deck_id.filter(deleted=False)
                 candidate = deck.deck_for_card.filter(have_it=False)
                 if candidate:
                     result.append(deck)
@@ -77,11 +79,18 @@ class Query(graphene.ObjectType):
         whish_list = WishList.objects.get(user_wish_list=user)
         cards_by_decks = []
         for deck in whish_list.deck_id.filter(deleted=False):
-            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=False)
+            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=False).distinct('card_id')
             for candidate in candidates_cards:
-                if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
-                    cards_by_decks.append(candidate.card)
+                cards_by_decks.append(candidate.card)
         return cards_by_decks
+
+    def resolve_grouped_wish_list_with_type(self, info, **kwargs):
+        try:
+            user = info.context.data.get('user')
+            return get_grouped_cards(user, False)
+        except Exception as error:
+            print(str(error))
+            raise GraphQLError(str(error))
 
     def resolve_my_cards(self, info, **kwargs):
         result = []
@@ -102,8 +111,16 @@ class Query(graphene.ObjectType):
         my_cards = MyCards.objects.get(user_cards=user)
         cards_by_decks = []
         for deck in my_cards.deck_id.filter(deleted=False):
-            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=True)
+            candidates_cards = CardForDeck.objects.filter(deck=deck, have_it=True).distinct('card_id')
             for candidate in candidates_cards:
-                if len(Card.get_duplicated(candidate.card.card_id, cards_by_decks)) == 0:
-                    cards_by_decks.append(candidate.card)
+                cards_by_decks.append(candidate.card)
         return cards_by_decks
+
+    def resolve_grouped_my_cards_with_type(self, info, **kwargs):
+        try:
+            user = info.context.data.get('user')
+            return get_grouped_cards(user, True)
+        except Exception as error:
+            print(str(error))
+            raise GraphQLError(str(error))
+

@@ -66,7 +66,7 @@ class Query(graphene.ObjectType):
         info.context.data['wishlist'] = True
         try:
             wish_list = WishList.objects.get(user_wish_list=user)
-            for deck in wish_list.deck_id.filter(deleted=False)
+            for deck in wish_list.deck_id.filter(deleted=False):
                 candidate = deck.deck_for_card.filter(have_it=False)
                 if candidate:
                     result.append(deck)

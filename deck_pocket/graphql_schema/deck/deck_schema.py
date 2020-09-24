@@ -1,15 +1,23 @@
 from graphene_django import DjangoObjectType
 from deck_pocket.models import Deck, CardForDeck, CardTypes
-from deck_pocket.graphql_schema.card_for_deck.cardfordeck import CardForDeckSchema, GroupedCardsByType
-from deck_pocket.graphql_fields.custom_fields import first, wrap_querys, generic_sort
-import copy
+from deck_pocket.graphql_schema.card_for_deck.cardfordeck import CardForDeckSchema, GroupedCardsByType, \
+    get_filtered_query
+from deck_pocket.graphql_fields.custom_fields import generic_sort
+from graphql import GraphQLError
 import graphene
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def get_queryset(self):
+    return CardForDeck.objects.filter(deck=self)
 
 
 def filtered_decks(info, self):
     my_cards = info.context.data.get('mycards')
     wishlist = info.context.data.get('wishlist')
-    queryset = CardForDeck.objects.filter(deck=self)
+    queryset = get_queryset(self)
     if my_cards:
         queryset = queryset.filter(have_it=True)
     if wishlist:
@@ -31,59 +39,14 @@ class DeckSchema(DjangoObjectType):
                             default_order={'sort': 'created', 'order': 'asc'})
 
     def resolve_cards_by_type(self, info, **kwargs):
-        result = {}
-        for card_type in CardTypes:
-            result[card_type.value.lower()] = []
+        try:
+            sort = info.context.data.get('sort')
+            queryset = filtered_decks(info, self)
 
-        sort = info.context.data.get('sort')
-        queryset = filtered_decks(info, self)
-        creature = generic_sort(queryset=queryset.filter(card__type_line__icontains=CardTypes.CREATURE.value),
-                                sort=sort,
-                                info=None,
-                                default_order={'sort': 'created', 'order': 'asc'})
-        land = generic_sort(queryset=queryset.filter(card__type_line__icontains=CardTypes.LAND.value),
-                            sort=sort,
-                            info=None,
-                            default_order={'sort': 'created', 'order': 'asc'})
-        enchantment = generic_sort(queryset=queryset.filter(
-            card__type_line__icontains=CardTypes.ENCHANTMENT.value).exclude(
-            card__type_line__icontains=CardTypes.CREATURE.value),
-                                   sort=sort,
-                                   info=None,
-                                   default_order={'sort': 'created', 'order': 'asc'})
-        artifact = generic_sort(queryset=queryset.filter(
-            card__type_line__icontains=CardTypes.ARTIFACT.value).exclude(
-            card__type_line__icontains=CardTypes.CREATURE.value).exclude(
-            card__type_line__icontains=CardTypes.LAND.value),
-                                sort=sort,
-                                info=None,
-                                default_order={'sort': 'created', 'order': 'asc'})
-        instant = generic_sort(queryset=queryset.filter(
-            card__type_line__icontains=CardTypes.INSTANT.value),
-            sort=sort,
-            info=None,
-            default_order={'sort': 'created', 'order': 'asc'})
-        sorcery = generic_sort(queryset=queryset.filter(
-            card__type_line__icontains=CardTypes.SORCERY.value),
-            sort=sort,
-            info=None,
-            default_order={'sort': 'created', 'order': 'asc'})
-        planeswalker = generic_sort(queryset=queryset.filter(
-            card__type_line__icontains=CardTypes.PLANESWALKER.value),
-            sort=sort,
-            info=None,
-            default_order={'sort': 'created', 'order': 'asc'})
-
-        return {
-            'creature': creature,
-            'land': land,
-            'enchantment': enchantment,
-            'artifact': artifact,
-            'instant': instant,
-            'sorcery': sorcery,
-            'planeswalker': planeswalker
-
-        }
+            return get_filtered_query(queryset, sort)
+        except Exception as error:
+            logger.error(str(error))
+            raise GraphQLError(str(error))
 
     class Meta:
         model = Deck

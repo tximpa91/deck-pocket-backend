@@ -86,7 +86,7 @@ hiredis==1.0.1
 hpack==3.0.0
 html5lib==1.0.1
 http-ece==1.1.0
-httpie==2.1.0
+httpie==3.1.0
 httplib2==0.18.1
 httptools==0.1.1
 hyper==0.7.0
